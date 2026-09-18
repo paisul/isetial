@@ -14,7 +14,17 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard', ['counts' => ['Anggota' => Membership::count(), 'Masjid' => Masjid::count(), 'Kegiatan' => Activity::count(), 'Pesanan Jersey' => JerseyOrder::count()]]);
+        $user = request()->user();
+        $masjids = $user->isSuperAdmin() || collect(['ketua', 'wakil-ketua', 'sekretaris', 'pengurus'])->contains(fn ($role) => $user->hasRole($role))
+            ? Masjid::all()
+            : Masjid::whereIn('id', $user->roles()->where('slug', 'admin-masjid')->pluck('role_assignments.masjid_id'))->get();
+
+        return view('admin.dashboard', [
+            'masjids' => $masjids,
+            'canGlobal' => $user->isSuperAdmin() || $user->hasRole('ketua') || $user->hasRole('pengurus'),
+            'canFinance' => $user->isSuperAdmin() || $user->hasRole('bendahara'),
+            'counts' => ['Anggota' => Membership::whereIn('home_masjid_id', $masjids->pluck('id'))->count(), 'Masjid' => $masjids->count(), 'Kegiatan' => Activity::whereIn('masjid_id', $masjids->pluck('id'))->count(), 'Pesanan Jersey' => $user->isSuperAdmin() || $user->hasRole('bendahara') ? JerseyOrder::count() : 0],
+        ]);
     }
 
     public function masjid(Masjid $masjid)
@@ -49,11 +59,12 @@ class AdminController extends Controller
             $old = Setting::valueOf('payment_qr');
             if ($old) {
                 \Storage::disk('public')->delete($old);
-            }$path = $d['payment_qr']->store('settings', 'public');
+            }
+            $path = $d['payment_qr']->store('settings', 'public');
             Setting::updateOrCreate(['masjid_id' => null, 'key' => 'payment_qr'], ['value' => $path]);
         }
 
-return back()->with('success', 'Pengaturan diperbarui.');
+        return back()->with('success', 'Pengaturan diperbarui.');
     }
 
     public function verifyPayment(Request $r, JerseyPayment $payment)

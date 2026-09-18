@@ -100,6 +100,10 @@ Aktifkan maintenance mode (`php artisan down --retry=60`) untuk migrasi berisiko
 - Saldo Jersey dihitung dari total pembayaran `verified`, tidak disimpan manual.
 - CSRF, validation, password hashing, upload image/size validation, throttle lookup/order, dan private payment proofs diterapkan.
 
+### Panel admin MVP
+
+Panel `/admin` menyediakan pengelolaan anggota, aktivasi akun dan role, profil masjid, kegiatan pusat/masjid, pengumuman, pedoman, periode, divisi, jabatan, penempatan pengurus iSetial/DKM, pesanan Jersey, verifikasi pembayaran, dan QR pembayaran. Admin Masjid hanya memperoleh daftar dan endpoint mutasi untuk `masjid_id` yang ditugaskan; request lintas-masjid ditolak dengan HTTP 403.
+
 ## Modul tahap berikutnya
 
 Skema sekarang sengaja menyediakan konteks person, masjid, periode, posisi, divisi, dan tugas. Modul berikutnya belum dibangun: workflow usulan-keputusan-evaluasi, keuangan organisasi, Bantu Sesama, serta rapat/keuangan/inventaris/dokumen/laporan DKM. Tambahkan sebagai modul pada project dan database yang sama tanpa tabel per-masjid.

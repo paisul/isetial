@@ -27,4 +27,9 @@ class PositionAssignment extends Model
     {
         return $this->belongsTo(Person::class);
     }
+
+    public function masjid()
+    {
+        return $this->belongsTo(Masjid::class);
+    }
 }

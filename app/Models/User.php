@@ -62,12 +62,9 @@ class User extends Authenticatable
 
     public function hasRole(string $role, ?int $masjidId = null): bool
     {
-        return $this->roles()->where('slug', $role)->where(function ($q) use ($masjidId) {
-            $q->whereNull('role_assignments.masjid_id');
-            if ($masjidId) {
-                $q->orWhere('role_assignments.masjid_id', $masjidId);
-            }
-        })->exists();
+        return $this->roles()->where('slug', $role)
+            ->when($masjidId, fn ($q) => $q->where(fn ($q) => $q->whereNull('role_assignments.masjid_id')->orWhere('role_assignments.masjid_id', $masjidId)))
+            ->exists();
     }
 
     public function isSuperAdmin(): bool

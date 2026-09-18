@@ -12,4 +12,9 @@ class OrganizationPeriod extends Model
     {
         return ['starts_at' => 'date', 'ends_at' => 'date', 'is_active' => 'boolean'];
     }
+
+    public function masjid()
+    {
+        return $this->belongsTo(Masjid::class);
+    }
 }

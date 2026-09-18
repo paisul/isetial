@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ContentAdminController;
+use App\Http\Controllers\Admin\MemberAdminController;
+use App\Http\Controllers\Admin\StructureAdminController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JerseyController;
@@ -39,6 +42,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/pembayaran/{payment}/bukti', [JerseyController::class, 'proof'])->name('admin.payment.proof');
     Route::get('/admin/pengaturan', [AdminController::class, 'settings'])->middleware('role:super-admin')->name('admin.settings');
     Route::post('/admin/pengaturan', [AdminController::class, 'updateSettings'])->middleware('role:super-admin')->name('admin.settings.update');
+    Route::prefix('admin')->name('admin.')->middleware('role:super-admin,ketua,wakil-ketua,sekretaris,pengurus,admin-masjid')->group(function () {
+        Route::get('/anggota', [MemberAdminController::class, 'index'])->name('members.index');
+        Route::post('/anggota', [MemberAdminController::class, 'store'])->name('members.store');
+        Route::put('/anggota/{membership}', [MemberAdminController::class, 'update'])->name('members.update');
+        Route::delete('/anggota/{membership}', [MemberAdminController::class, 'destroy'])->name('members.destroy');
+        Route::put('/anggota/{membership}/akun', [MemberAdminController::class, 'account'])->name('members.account');
+        Route::get('/konten', [ContentAdminController::class, 'index'])->name('content.index');
+        Route::post('/kegiatan', [ContentAdminController::class, 'storeActivity'])->name('activities.store');
+        Route::put('/kegiatan/{activity}', [ContentAdminController::class, 'updateActivity'])->name('activities.update');
+        Route::delete('/kegiatan/{activity}', [ContentAdminController::class, 'destroyActivity'])->name('activities.destroy');
+        Route::post('/pengumuman', [ContentAdminController::class, 'storeAnnouncement'])->name('announcements.store');
+        Route::put('/pengumuman/{announcement}', [ContentAdminController::class, 'updateAnnouncement'])->name('announcements.update');
+        Route::delete('/pengumuman/{announcement}', [ContentAdminController::class, 'destroyAnnouncement'])->name('announcements.destroy');
+        Route::post('/pedoman', [ContentAdminController::class, 'storeGuideline'])->name('guidelines.store');
+        Route::put('/pedoman/{guideline}', [ContentAdminController::class, 'updateGuideline'])->name('guidelines.update');
+        Route::delete('/pedoman/{guideline}', [ContentAdminController::class, 'destroyGuideline'])->name('guidelines.destroy');
+        Route::get('/struktur', [StructureAdminController::class, 'index'])->name('structure.index');
+        Route::post('/struktur/periode', [StructureAdminController::class, 'storePeriod'])->name('periods.store');
+        Route::post('/struktur/jabatan', [StructureAdminController::class, 'storePosition'])->name('positions.store');
+        Route::post('/struktur/divisi', [StructureAdminController::class, 'storeDivision'])->name('divisions.store');
+        Route::post('/struktur/penempatan', [StructureAdminController::class, 'storeAssignment'])->name('assignments.store');
+        Route::delete('/struktur/penempatan/{assignment}', [StructureAdminController::class, 'destroyAssignment'])->name('assignments.destroy');
+    });
 });
 
 $portal = function () {

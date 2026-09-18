@@ -7,8 +7,8 @@
 <section aria-labelledby="model-title"><div class="flex items-end justify-between"><div><p class="text-sm font-bold text-emerald-700">LANGKAH 1</p><h2 id="model-title" class="text-2xl font-black">Pilih model</h2></div><span class="hidden text-sm text-slate-500 md:block">Klik model untuk melihat tampilannya</span></div>
 @php($models = [
     ['name' => 'Lelaki Pendek', 'image' => 'model-pria-pendek-v2.jpg', 'sleeve' => 'short', 'icon' => '👕'],
-    ['name' => 'Lelaki Panjang', 'image' => 'model-pria-panjang-v2.jpg', 'sleeve' => 'long', 'icon' => '🧥'],
-    ['name' => 'Muslimah', 'image' => 'model-muslimah-v2.jpg', 'sleeve' => 'long', 'icon' => '🌿'],
+    ['name' => 'Lelaki Panjang', 'image' => 'model-pria-panjang-v3.jpg', 'sleeve' => 'long', 'icon' => '🧥'],
+    ['name' => 'Muslimah', 'image' => 'model-muslimah-v3.jpg', 'sleeve' => 'long', 'icon' => '🌿'],
     ['name' => 'Anak', 'image' => 'model-anak.webp', 'sleeve' => 'short', 'icon' => '⭐'],
 ])
 <div class="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-white p-2 shadow-sm md:grid-cols-4" role="tablist" aria-label="Pilihan model jersey">

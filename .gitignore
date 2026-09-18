@@ -13,7 +13,7 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# Production assets are committed so shared hosting does not need Node.js.
 /public/hot
 /public/storage
 /storage/*.key

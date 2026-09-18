@@ -5,10 +5,13 @@ namespace Tests\Feature;
 use App\Models\Activity;
 use App\Models\JerseyOrder;
 use App\Models\JerseyPayment;
+use App\Models\JerseyProduct;
 use App\Models\Masjid;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FoundationTest extends TestCase
@@ -92,5 +95,48 @@ class FoundationTest extends TestCase
         $this->actingAs($user)->post(route('admin.activities.store'), [...$base, 'slug' => 'pusat', 'masjid_id' => null])->assertForbidden();
         $other = Activity::create([...$base, 'slug' => 'naim', 'masjid_id' => $naim->id]);
         $this->actingAs($user)->delete(route('admin.activities.destroy', $other))->assertForbidden();
+    }
+
+    public function test_customer_can_order_lookup_and_upload_private_jersey_payment(): void
+    {
+        Storage::fake('local');
+        $this->seed();
+        $product = JerseyProduct::with('sizes')->first();
+        $response = $this->post(route('jersey.store'), [
+            'customer_name' => 'Pemesan Jersey', 'birth_date' => '2000-01-01', 'address' => 'Alamat',
+            'phone' => '08123456789', 'gender' => 'male', 'jersey_product_id' => $product->id,
+            'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Pria', 'sleeve' => 'short', 'quantity' => 2,
+        ]);
+        $response->assertSessionHasNoErrors();
+        $order = JerseyOrder::with('items')->first();
+        $response->assertRedirect(route('jersey.show', $order->order_number));
+        $this->assertSame('JRS-000001', $order->order_number);
+        $this->assertSame(2, $order->items->first()->quantity);
+        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey');
+        $this->post(route('jersey.payment', $order->order_number), ['amount' => 50000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
+        $payment = JerseyPayment::first();
+        $this->assertSame('pending', $payment->status);
+        Storage::disk('local')->assertExists($payment->proof_path);
+    }
+
+    public function test_order_page_requires_successful_phone_lookup_session(): void
+    {
+        $order = JerseyOrder::create(['order_number' => 'JRS-000999', 'customer_name' => 'A', 'address' => 'X', 'phone' => '081', 'gender' => 'male', 'total' => 100000]);
+        $this->get(route('jersey.show', $order->order_number))->assertForbidden();
+        $this->post(route('jersey.find'), ['order_number' => 'jrs-000999', 'phone' => '081'])->assertRedirect(route('jersey.show', $order->order_number));
+        $this->get(route('jersey.show', $order->order_number))->assertOk();
+    }
+
+    public function test_super_admin_can_configure_jersey_product_and_production_status(): void
+    {
+        $this->seed();
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        $this->actingAs($admin)->post(route('admin.products.store'), ['name' => 'Jersey Anak', 'description' => 'Khusus anak', 'price' => 120000, 'sizes' => 'S, M'])->assertRedirect();
+        $product = JerseyProduct::where('name', 'Jersey Anak')->firstOrFail();
+        $this->assertCount(2, $product->sizes);
+        $order = JerseyOrder::create(['order_number' => 'JRS-000010', 'customer_name' => 'A', 'address' => 'X', 'phone' => '081', 'gender' => 'male', 'total' => 120000]);
+        $this->actingAs($admin)->patch(route('admin.orders.update', $order), ['production_status' => 'ready', 'notes' => 'Siap diambil'])->assertRedirect();
+        $this->assertDatabaseHas('jersey_orders', ['id' => $order->id, 'production_status' => 'ready']);
     }
 }

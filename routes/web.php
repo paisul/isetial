@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ContentAdminController;
+use App\Http\Controllers\Admin\JerseyAdminController;
 use App\Http\Controllers\Admin\MemberAdminController;
 use App\Http\Controllers\Admin\StructureAdminController;
 use App\Http\Controllers\AdminController;
@@ -37,8 +38,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->middleware('role:super-admin,ketua,wakil-ketua,sekretaris,bendahara,pengurus,admin-masjid')->name('admin.dashboard');
     Route::get('/admin/masjid/{masjid}', [AdminController::class, 'masjid'])->name('admin.masjid');
     Route::put('/admin/masjid/{masjid}', [AdminController::class, 'updateMasjid'])->name('admin.masjid.update');
-    Route::get('/admin/jersey', [AdminController::class, 'orders'])->middleware('role:super-admin,bendahara')->name('admin.orders');
-    Route::patch('/admin/pembayaran/{payment}', [AdminController::class, 'verifyPayment'])->middleware('role:super-admin,bendahara')->name('admin.payment.verify');
+    Route::get('/admin/jersey', [JerseyAdminController::class, 'index'])->middleware('role:super-admin,bendahara')->name('admin.orders');
+    Route::post('/admin/jersey/produk', [JerseyAdminController::class, 'storeProduct'])->middleware('role:super-admin')->name('admin.products.store');
+    Route::put('/admin/jersey/produk/{product}', [JerseyAdminController::class, 'updateProduct'])->middleware('role:super-admin')->name('admin.products.update');
+    Route::post('/admin/jersey/produk/{product}/ukuran', [JerseyAdminController::class, 'storeSize'])->middleware('role:super-admin')->name('admin.sizes.store');
+    Route::patch('/admin/jersey/pesanan/{order}', [JerseyAdminController::class, 'updateOrder'])->middleware('role:super-admin,bendahara')->name('admin.orders.update');
+    Route::patch('/admin/pembayaran/{payment}', [JerseyAdminController::class, 'verifyPayment'])->middleware('role:super-admin,bendahara')->name('admin.payment.verify');
     Route::get('/admin/pembayaran/{payment}/bukti', [JerseyController::class, 'proof'])->name('admin.payment.proof');
     Route::get('/admin/pengaturan', [AdminController::class, 'settings'])->middleware('role:super-admin')->name('admin.settings');
     Route::post('/admin/pengaturan', [AdminController::class, 'updateSettings'])->middleware('role:super-admin')->name('admin.settings.update');

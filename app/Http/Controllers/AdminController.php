@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\JerseyOrder;
-use App\Models\JerseyPayment;
 use App\Models\Masjid;
 use App\Models\Membership;
 use App\Models\Setting;
@@ -42,11 +41,6 @@ class AdminController extends Controller
         return back()->with('success', 'Profil masjid diperbarui.');
     }
 
-    public function orders()
-    {
-        return view('admin.orders', ['orders' => JerseyOrder::with('payments')->latest()->paginate(20)]);
-    }
-
     public function settings()
     {
         return view('admin.settings', ['qr' => Setting::valueOf('payment_qr')]);
@@ -65,14 +59,6 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Pengaturan diperbarui.');
-    }
-
-    public function verifyPayment(Request $r, JerseyPayment $payment)
-    {
-        $d = $r->validate(['status' => 'required|in:verified,rejected', 'notes' => 'nullable|max:1000']);
-        $payment->update([...$d, 'verified_by' => $r->user()->id, 'verified_at' => now()]);
-
-        return back()->with('success', 'Status pembayaran diperbarui.');
     }
 
     private function authorizeMasjid(Request $r, Masjid $masjid): void

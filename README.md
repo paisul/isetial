@@ -61,7 +61,7 @@ Jalankan `php artisan db:seed`. Setelah akun terbentuk, hapus password dari `.en
 
 1. Tambahkan repository melalui Git/SSH Hostinger, atau clone dari GitHub ke folder aplikasi di luar `public_html` bila panel mengizinkan.
 2. Pilih PHP 8.2+ dan aktifkan extension yang disebutkan di atas.
-3. Jalankan `composer install --no-dev --optimize-autoloader`.
+3. Jalankan `composer install --no-dev --optimize-autoloader`. Aset production di `public/build` sudah disertakan dalam Git, sehingga Hostinger tidak perlu menjalankan Node.js. Jika CSS/JavaScript diubah, jalankan `npm ci && npm run build` di lokal lalu commit hasil build.
 4. Buat database MySQL dan user dengan privilege hanya untuk database tersebut; isi `.env` production. Gunakan `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://isetial.com`, `APP_DOMAIN=isetial.com`, dan HTTPS.
 5. Jalankan `php artisan key:generate` hanya untuk instalasi baru, lalu `php artisan migrate --force` dan `php artisan db:seed --force`.
 6. Jalankan `php artisan storage:link`. Pastikan `storage` dan `bootstrap/cache` dapat ditulis oleh PHP (umumnya 775; jangan 777 jika tidak diperlukan).

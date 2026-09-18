@@ -1,0 +1,1 @@
+@extends('layouts.app') @section('title','Kontak') @section('content')<div class="mx-auto max-w-4xl px-4 py-16"><h1 class="text-4xl font-black">Hubungi Kami</h1><div class="mt-8 rounded-2xl bg-white p-8 shadow"><p>Untuk kolaborasi dan informasi kegiatan, hubungi pengurus iSetial Wisdom melalui kanal resmi organisasi.</p></div></div>@endsection

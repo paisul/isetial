@@ -20,7 +20,7 @@ class JerseyController extends Controller
 
     public function store(Request $r)
     {
-        $d = $r->validate(['customer_name' => 'required|max:150', 'birth_date' => 'nullable|date|before:today', 'address' => 'required|max:1000', 'phone' => 'required|max:30', 'gender' => 'required|in:male,female', 'jersey_product_id' => 'required|exists:jersey_products,id', 'jersey_size_id' => 'required|exists:jersey_sizes,id', 'model' => 'required|max:50', 'sleeve' => 'required|in:short,long', 'quantity' => 'required|integer|min:1|max:2']);
+        $d = $r->validate(['customer_name' => 'required|max:150', 'birth_date' => 'nullable|date|before:today', 'address' => 'required|max:1000', 'phone' => 'required|max:30', 'gender' => 'required|in:male,female', 'jersey_product_id' => 'required|exists:jersey_products,id', 'jersey_size_id' => 'required|exists:jersey_sizes,id', 'model' => 'required|max:50|not_in:Anak', 'sleeve' => 'required|in:short,long', 'quantity' => 'required|integer|min:1|max:2']);
         $product = JerseyProduct::where('is_active', true)->findOrFail($d['jersey_product_id']);
         $size = JerseySize::whereBelongsTo($product, 'product')->findOrFail($d['jersey_size_id']);
         $order = DB::transaction(function () use ($d, $product, $size) {

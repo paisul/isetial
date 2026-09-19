@@ -102,7 +102,7 @@ class FoundationTest extends TestCase
         Storage::fake('local');
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
-        $this->get(route('jersey.create'))->assertOk()->assertSee('Tambah Jersey')->assertSee('Daftar jersey');
+        $this->get(route('jersey.create'))->assertOk()->assertSee('Tambah jersey')->assertSee('Periksa pesanan');
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
             'phone' => '08123456789', 'items' => [

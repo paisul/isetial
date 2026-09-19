@@ -102,7 +102,7 @@ class FoundationTest extends TestCase
         Storage::fake('local');
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
-        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan ke Keranjang')->assertSee('Bayar Sekarang');
+        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
         $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertRedirect(route('jersey.cart'));
         $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->last()->id, 'model' => 'Muslimah', 'sleeve' => 'long'])->assertRedirect(route('jersey.cart'));

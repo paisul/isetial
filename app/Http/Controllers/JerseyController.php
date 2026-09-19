@@ -76,8 +76,8 @@ class JerseyController extends Controller
         $cart[$line] = $item;
         $r->session()->put('jersey_cart', $cart);
 
+        if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line]);
         if ($r->input('intent') === 'buy_now') return redirect()->route('jersey.checkout', ['lines' => [$line]]);
-        if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity')]);
 
         return redirect()->route('jersey.cart')->with('success', 'Jersey berhasil disimpan ke keranjang.');
     }

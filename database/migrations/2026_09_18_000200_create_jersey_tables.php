@@ -32,7 +32,7 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->text('address');
             $table->string('phone', 30)->index();
-            $table->enum('gender', ['male', 'female']);
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->decimal('total', 12, 2)->default(0);
             $table->enum('production_status', ['queued', 'processing', 'ready', 'delivered', 'cancelled'])->default('queued');
             $table->text('notes')->nullable();

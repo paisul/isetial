@@ -103,14 +103,16 @@ class FoundationTest extends TestCase
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
         $response = $this->post(route('jersey.store'), [
-            'customer_name' => 'Pemesan Jersey', 'birth_date' => '2000-01-01', 'address' => 'Alamat',
-            'phone' => '08123456789', 'gender' => 'male', 'jersey_product_id' => $product->id,
+            'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
+            'phone' => '08123456789', 'jersey_product_id' => $product->id,
             'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Pria', 'sleeve' => 'short', 'quantity' => 2,
         ]);
         $response->assertSessionHasNoErrors();
         $order = JerseyOrder::with('items')->first();
         $response->assertRedirect(route('jersey.show', $order->order_number));
         $this->assertSame('JRS-000001', $order->order_number);
+        $this->assertNull($order->birth_date);
+        $this->assertNull($order->gender);
         $this->assertSame(2, $order->items->first()->quantity);
         $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey');
         $this->post(route('jersey.payment', $order->order_number), ['amount' => 50000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();

@@ -24,9 +24,10 @@
         </div>
         @php
             $rootAssignments = $assignments->filter(fn ($item) => !$item->position->parent_id);
-            $deputyAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && str_starts_with(mb_strtolower($item->position->name), 'wakil'));
+            $rootPositionIds = $rootAssignments->pluck('position_id');
+            $deputyAssignments = $assignments->filter(fn ($item) => !$item->division_id && $rootPositionIds->contains($item->position->parent_id) && str_starts_with(mb_strtolower($item->position->name), 'wakil'));
             $centralAssignments = $assignments
-                ->filter(fn ($item) => !$item->division_id && $item->position->parent_id && !str_starts_with(mb_strtolower($item->position->name), 'wakil'))
+                ->filter(fn ($item) => !$item->division_id && $rootPositionIds->contains($item->position->parent_id) && !str_starts_with(mb_strtolower($item->position->name), 'wakil'))
                 ->sortBy(function ($item) {
                     $name = mb_strtolower($item->position->name);
                     return match (true) {
@@ -35,6 +36,7 @@
                         default => 2 + $item->display_order,
                     };
                 });
+            $supportAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && !$rootPositionIds->contains($item->position->parent_id));
             $divisionGroups = $assignments->whereNotNull('division_id')->groupBy('division_id');
         @endphp
         <div class="desktop-org hidden md:block" aria-label="Bagan struktur pengurus versi desktop">
@@ -49,7 +51,18 @@
                 @endif
                 @if($centralAssignments->isNotEmpty())
                     <div class="desktop-org-central">
-                        @foreach($centralAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
+                        @foreach($centralAssignments as $holder)
+                            <div class="desktop-org-central-branch">
+                                @include('public.partials.structure-card', ['holder' => $holder])
+                                @if($supportAssignments->where('position.parent_id', $holder->position_id)->isNotEmpty())
+                                    <div class="desktop-org-support">
+                                        @foreach($supportAssignments->where('position.parent_id', $holder->position_id) as $support)
+                                            @include('public.partials.structure-card', ['holder' => $support])
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>

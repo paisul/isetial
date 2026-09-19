@@ -171,6 +171,18 @@ class FoundationTest extends TestCase
         $this->assertLessThan(strpos($html, 'Bendahara'), strpos($html, 'Setiausaha'));
     }
 
+    public function test_assistant_treasurer_is_grouped_below_treasurer_not_as_a_third_central_column(): void
+    {
+        $this->seed(OrganizationStructure2026Seeder::class);
+        $period = OrganizationPeriod::where('name', '2026')->firstOrFail();
+        $treasurer = Position::where('name', 'Bendahara')->firstOrFail();
+        $assistant = Position::create(['context_type' => 'isetial', 'name' => 'W.1 Bendahara', 'parent_id' => $treasurer->id, 'display_order' => 4]);
+        PositionAssignment::create(['person_id' => Person::create(['name' => 'Pembantu Bendahara'])->id, 'organization_period_id' => $period->id, 'position_id' => $assistant->id, 'is_active' => true, 'display_order' => 4]);
+
+        $response = $this->get(route('structure'))->assertOk();
+        $response->assertSee('desktop-org-support')->assertSeeText('Pembantu Bendahara');
+    }
+
     public function test_2026_structure_seeder_populates_the_public_chart_idempotently(): void
     {
         $this->seed(OrganizationStructure2026Seeder::class);

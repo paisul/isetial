@@ -34,7 +34,8 @@
 .desktop-org-deputy { display: grid; gap: .75rem; margin-left: calc(50% + 2rem); max-width: 300px; padding-top: .75rem; position: relative; }
 .desktop-org-deputy::before { background: #94a3b8; content: ''; height: 2px; left: -2rem; position: absolute; top: 50%; width: 2rem; }
 .desktop-org-deputy .org-card { width: 100%; }
-.desktop-org-central { border-top: 2px solid #94a3b8; display: grid; gap: 2rem; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; margin: 2rem auto 0; max-width: 700px; padding-top: 1.5rem; position: relative; }
+.desktop-org-central { display: grid; gap: 2rem; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; margin: 2rem auto 0; max-width: 632px; padding-top: 1.5rem; position: relative; }
+.desktop-org-central::before { background: #94a3b8; content: ''; height: 2px; left: 150px; position: absolute; right: 150px; top: 0; }
 .desktop-org-central .org-card { position: relative; }
 .desktop-org-central .org-card::before { background: #94a3b8; content: ''; height: 1.5rem; left: 50%; position: absolute; top: -1.5rem; width: 2px; }
 .desktop-org-fields-label { display: flex; justify-content: center; margin-top: 2.5rem; position: relative; z-index: 1; }

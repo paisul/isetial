@@ -159,6 +159,18 @@ class FoundationTest extends TestCase
         $this->get(route('structure'))->assertOk()->assertSee('desktop-org-deputy')->assertSeeText('Wakil Pengujian');
     }
 
+    public function test_secretary_is_rendered_before_treasurer_regardless_of_display_order(): void
+    {
+        $this->seed(OrganizationStructure2026Seeder::class);
+        $period = OrganizationPeriod::where('name', '2026')->firstOrFail();
+        PositionAssignment::where('organization_period_id', $period->id)->whereHas('position', fn ($query) => $query->where('name', 'Setiausaha'))->update(['display_order' => 999]);
+        PositionAssignment::where('organization_period_id', $period->id)->whereHas('position', fn ($query) => $query->where('name', 'Bendahara'))->update(['display_order' => 1]);
+
+        $response = $this->get(route('structure'))->assertOk();
+        $html = $response->getContent();
+        $this->assertLessThan(strpos($html, 'Bendahara'), strpos($html, 'Setiausaha'));
+    }
+
     public function test_2026_structure_seeder_populates_the_public_chart_idempotently(): void
     {
         $this->seed(OrganizationStructure2026Seeder::class);

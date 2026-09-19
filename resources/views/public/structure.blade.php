@@ -25,7 +25,16 @@
         @php
             $rootAssignments = $assignments->filter(fn ($item) => !$item->position->parent_id);
             $deputyAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && str_starts_with(mb_strtolower($item->position->name), 'wakil'));
-            $centralAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && !str_starts_with(mb_strtolower($item->position->name), 'wakil'));
+            $centralAssignments = $assignments
+                ->filter(fn ($item) => !$item->division_id && $item->position->parent_id && !str_starts_with(mb_strtolower($item->position->name), 'wakil'))
+                ->sortBy(function ($item) {
+                    $name = mb_strtolower($item->position->name);
+                    return match (true) {
+                        str_contains($name, 'setiausaha'), str_contains($name, 'sekretaris') => 0,
+                        str_contains($name, 'bendahara') => 1,
+                        default => 2 + $item->display_order,
+                    };
+                });
             $divisionGroups = $assignments->whereNotNull('division_id')->groupBy('division_id');
         @endphp
         <div class="desktop-org hidden md:block" aria-label="Bagan struktur pengurus versi desktop">

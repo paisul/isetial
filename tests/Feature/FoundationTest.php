@@ -242,6 +242,7 @@ class FoundationTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.orders', ['q' => 'Ahmad', 'production' => 'ready']))
             ->assertOk()
+            ->assertSeeInOrder(['Pesanan', 'Pemesan', 'Item', 'Pembayaran', 'Produksi', 'Tanggal', 'Aksi'])
             ->assertSee('JRS-SEARCH-1')
             ->assertDontSee('JRS-SEARCH-2')
             ->assertSee('Menampilkan 1 pesanan');

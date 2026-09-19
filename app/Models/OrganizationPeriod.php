@@ -17,4 +17,9 @@ class OrganizationPeriod extends Model
     {
         return $this->belongsTo(Masjid::class);
     }
+
+    public function assignments()
+    {
+        return $this->hasMany(PositionAssignment::class);
+    }
 }

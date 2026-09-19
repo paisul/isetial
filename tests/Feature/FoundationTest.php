@@ -7,6 +7,11 @@ use App\Models\JerseyOrder;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
 use App\Models\Masjid;
+use App\Models\Membership;
+use App\Models\OrganizationPeriod;
+use App\Models\Person;
+use App\Models\Position;
+use App\Models\PositionAssignment;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -73,6 +78,54 @@ class FoundationTest extends TestCase
         $this->actingAs($user)->get(route('admin.members.index'))->assertOk()->assertSeeText('Tambah Anggota');
         $this->actingAs($user)->get(route('admin.content.index'))->assertOk()->assertSee('Tambah Kegiatan');
         $this->actingAs($user)->get(route('admin.structure.index'))->assertOk()->assertSeeText('Tempatkan Person pada Jabatan');
+    }
+
+    public function test_structure_admin_can_build_and_publish_dynamic_hierarchy(): void
+    {
+        Storage::fake('public');
+        $this->seed();
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        $masjid = Masjid::first();
+        $person = Person::create(['name' => 'Solahudin Awae']);
+        Membership::create(['person_id' => $person->id, 'member_number' => 'IW-STR-001', 'home_masjid_id' => $masjid->id, 'joined_at' => now(), 'is_active' => true]);
+
+        $this->actingAs($admin)->post(route('admin.periods.store'), [
+            'name' => '2026', 'starts_at' => '2026-01-01', 'ends_at' => '2026-12-31', 'status' => 'active',
+        ])->assertRedirect();
+        $period = OrganizationPeriod::where('name', '2026')->whereNull('masjid_id')->firstOrFail();
+        $this->actingAs($admin)->post(route('admin.positions.store'), [
+            'context_type' => 'isetial', 'name' => 'Ketua Umum', 'display_order' => 1,
+        ])->assertRedirect();
+        $chair = Position::where('name', 'Ketua Umum')->firstOrFail();
+        $this->actingAs($admin)->post(route('admin.positions.store'), [
+            'context_type' => 'isetial', 'name' => 'Setiausaha', 'parent_id' => $chair->id, 'display_order' => 2,
+        ])->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.assignments.store'), [
+            'person_id' => $person->id, 'organization_period_id' => $period->id, 'position_id' => $chair->id,
+            'display_order' => 1, 'is_active' => 1, 'photo' => UploadedFile::fake()->image('ketua.jpg'),
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('positions', ['name' => 'Setiausaha', 'parent_id' => $chair->id]);
+        $this->assertDatabaseHas('position_assignments', ['person_id' => $person->id, 'organization_period_id' => $period->id]);
+        Storage::disk('public')->assertExists($person->fresh()->photo);
+        $this->get(route('structure'))->assertOk()->assertSeeText('Struktur Pengurus')->assertSeeText('Ketua Umum')->assertSeeText('Solahudin Awae');
+    }
+
+    public function test_only_one_central_organization_period_can_be_active(): void
+    {
+        $this->seed();
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        foreach (['2026', '2027'] as $year) {
+            $this->actingAs($admin)->post(route('admin.periods.store'), [
+                'name' => $year, 'starts_at' => $year.'-01-01', 'ends_at' => $year.'-12-31', 'status' => 'active',
+            ])->assertRedirect();
+        }
+
+        $this->assertSame('archived', OrganizationPeriod::where('name', '2026')->value('status'));
+        $this->assertSame('active', OrganizationPeriod::where('name', '2027')->value('status'));
+        $this->assertSame(1, OrganizationPeriod::whereNull('masjid_id')->where('status', 'active')->count());
     }
 
     public function test_masjid_admin_can_create_only_members_for_assigned_masjid(): void

@@ -9,3 +9,28 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+.org-level { display: flex; justify-content: center; gap: 1.25rem; margin: 0; padding: 2.5rem 0 0; position: relative; }
+.org-level .org-level::before { background: #94a3b8; content: ''; height: 1.5rem; left: 50%; position: absolute; top: 0; width: 2px; }
+.org-node { align-items: center; display: flex; flex: 1 1 0; flex-direction: column; min-width: 230px; position: relative; }
+.org-node::before, .org-node::after { border-top: 2px solid #94a3b8; content: ''; height: 1.5rem; position: absolute; right: 50%; top: -1rem; width: 50%; }
+.org-node::after { border-left: 2px solid #94a3b8; left: 50%; right: auto; }
+.org-node:only-child::before, .org-node:only-child::after { display: none; }
+.org-node:first-child::before, .org-node:last-child::after { border: 0; }
+.org-node:last-child::before { border-right: 2px solid #94a3b8; border-radius: 0 .75rem 0 0; }
+.org-node:first-child::after { border-radius: .75rem 0 0 0; }
+.org-roots { padding-top: 0; }
+.org-roots > .org-node::before, .org-roots > .org-node::after { display: none; }
+.org-card { align-items: center; background: white; border: 1px solid #d1fae5; border-radius: 9999px; box-shadow: 0 12px 30px rgb(15 23 42 / .1); display: flex; gap: .9rem; margin: auto; min-height: 86px; padding: .4rem 1.25rem .4rem .4rem; position: relative; width: min(300px, 100%); z-index: 1; }
+.org-photo { background: #dcfce7; border: 4px solid #22c55e; border-radius: 9999px; flex: 0 0 auto; height: 74px; object-fit: cover; width: 74px; }
+.org-avatar { align-items: center; color: #166534; display: flex; font-size: 1.75rem; font-weight: 900; justify-content: center; }
+.org-role { background: #16a34a; border-radius: 9999px; color: white; display: inline-block; font-size: .7rem; font-weight: 900; letter-spacing: .05em; margin-bottom: .2rem; padding: .2rem .65rem; text-transform: uppercase; }
+
+@media (max-width: 767px) {
+    .org-level, .org-node { align-items: stretch; display: block; min-width: 0; }
+    .org-level { border-left: 2px solid #86efac; margin-left: 1.2rem; padding: 1rem 0 0 1rem; }
+    .org-roots { border-left: 0; margin-left: 0; padding: 0; }
+    .org-node { margin-bottom: 1rem; }
+    .org-node::before, .org-node::after, .org-level .org-level::before { display: none; }
+    .org-card { margin: 0; width: 100%; }
+}

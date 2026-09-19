@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('/tentang', [PublicController::class, 'about'])->name('about');
+Route::get('/struktur-pengurus', [PublicController::class, 'structure'])->name('structure');
 Route::get('/masjid', [PublicController::class, 'masjids'])->name('masjids');
 Route::get('/pedoman', [PublicController::class, 'guidelines'])->name('guidelines');
 Route::get('/kegiatan', [PublicController::class, 'activities'])->name('activities');
@@ -71,9 +72,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/pedoman/{guideline}', [ContentAdminController::class, 'destroyGuideline'])->name('guidelines.destroy');
         Route::get('/struktur', [StructureAdminController::class, 'index'])->name('structure.index');
         Route::post('/struktur/periode', [StructureAdminController::class, 'storePeriod'])->name('periods.store');
+        Route::put('/struktur/periode/{period}', [StructureAdminController::class, 'updatePeriod'])->name('periods.update');
+        Route::delete('/struktur/periode/{period}', [StructureAdminController::class, 'destroyPeriod'])->name('periods.destroy');
         Route::post('/struktur/jabatan', [StructureAdminController::class, 'storePosition'])->name('positions.store');
+        Route::put('/struktur/jabatan/{position}', [StructureAdminController::class, 'updatePosition'])->name('positions.update');
+        Route::delete('/struktur/jabatan/{position}', [StructureAdminController::class, 'destroyPosition'])->name('positions.destroy');
         Route::post('/struktur/divisi', [StructureAdminController::class, 'storeDivision'])->name('divisions.store');
+        Route::put('/struktur/divisi/{division}', [StructureAdminController::class, 'updateDivision'])->name('divisions.update');
+        Route::delete('/struktur/divisi/{division}', [StructureAdminController::class, 'destroyDivision'])->name('divisions.destroy');
         Route::post('/struktur/penempatan', [StructureAdminController::class, 'storeAssignment'])->name('assignments.store');
+        Route::put('/struktur/penempatan/{assignment}', [StructureAdminController::class, 'updateAssignment'])->name('assignments.update');
         Route::delete('/struktur/penempatan/{assignment}', [StructureAdminController::class, 'destroyAssignment'])->name('assignments.destroy');
     });
 });

@@ -30,4 +30,9 @@ class Person extends Model
     {
         return $this->hasMany(PositionAssignment::class);
     }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo ? asset('storage/'.$this->photo) : null;
+    }
 }

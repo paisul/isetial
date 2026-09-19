@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         }
         Guideline::firstOrCreate(['slug' => 'pedoman-organisasi'], ['title' => 'Pedoman Organisasi iSetial Wisdom', 'content' => 'Pedoman organisasi akan diterbitkan dan diperbarui oleh pengurus iSetial Wisdom.', 'published' => true]);
         $product = JerseyProduct::firstOrCreate(['name' => 'Jersey iSetial Wisdom'], ['description' => 'Jersey resmi iSetial Wisdom', 'price' => 150000, 'is_active' => true]);
-        foreach (['S', 'M', 'L', 'XL', 'XXL'] as $size) {
+        foreach (['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'] as $size) {
             JerseySize::firstOrCreate(['jersey_product_id' => $product->id, 'name' => $size]);
         }
         if (env('SUPER_ADMIN_EMAIL') && env('SUPER_ADMIN_PASSWORD')) {

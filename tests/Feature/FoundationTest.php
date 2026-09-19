@@ -104,7 +104,7 @@ class FoundationTest extends TestCase
         $product = JerseyProduct::with('sizes')->first();
         $product->sizes->first()->update(['stock' => 4]);
         $product->sizes->last()->update(['stock' => 2]);
-        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang');
+        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang')->assertSee('Panduan ukuran')->assertSee('5XL');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
         $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1]);
         $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->last()->id, 'model' => 'Muslimah', 'sleeve' => 'long'])->assertRedirect(route('jersey.cart'));

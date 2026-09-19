@@ -39,7 +39,8 @@
 .desktop-org-central-branch { min-width: 0; position: relative; }
 .desktop-org-central-branch > .org-card { position: relative; }
 .desktop-org-central-branch > .org-card::before { background: #94a3b8; content: ''; height: 1.5rem; left: 50%; position: absolute; top: -1.5rem; width: 2px; }
-.desktop-org-support { border-left: 2px solid #94a3b8; display: grid; gap: .75rem; margin: .75rem 0 0 1.5rem; padding-left: .75rem; }
+.desktop-org-support { display: grid; gap: .75rem; margin-top: 1.5rem; position: relative; }
+.desktop-org-support::before { background: #94a3b8; content: ''; height: 1.5rem; left: 50%; position: absolute; top: -1.5rem; width: 2px; }
 .desktop-org-support .org-card { border-radius: 1.25rem; min-height: 74px; width: 100%; }
 .desktop-org-support .org-photo { height: 60px; width: 60px; }
 .desktop-org-fields-label { display: flex; justify-content: center; margin-top: 2.5rem; position: relative; z-index: 1; }

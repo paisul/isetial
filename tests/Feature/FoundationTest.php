@@ -21,7 +21,7 @@ class FoundationTest extends TestCase
     public function test_public_site_and_local_masjid_portal_work(): void
     {
         $this->seed();
-        $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid');
+        $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan');
         $this->get('/m/darulhikmah')->assertOk()->assertSee('Darul Hikmah');
     }
 
@@ -105,7 +105,7 @@ class FoundationTest extends TestCase
         $plusSize = $product->sizes->firstWhere('name', '5XL');
         $product->sizes->first()->update(['stock' => 4]);
         $plusSize->update(['stock' => 2]);
-        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang')->assertSee('Panduan ukuran')->assertSee('5XL');
+        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang')->assertSee('Panduan ukuran')->assertSee('5XL')->assertDontSee('Cek status pesanan sebelumnya');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
         $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1]);
         $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $plusSize->id, 'model' => 'Muslimah', 'sleeve' => 'long'])->assertRedirect(route('jersey.cart'));

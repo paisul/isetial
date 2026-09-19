@@ -125,11 +125,13 @@ class FoundationTest extends TestCase
         $this->assertNull($order->gender);
         $this->assertCount(2, $order->items);
         $this->assertSame(3, $order->items->sum('quantity'));
+        $this->assertSame(697.0, (float) $order->total);
+        $this->assertSame([199.0, 299.0], $order->items->pluck('unit_price')->map(fn ($price) => (float) $price)->all());
         $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
         $this->assertSame(2, $product->sizes->first()->fresh()->stock);
         $this->assertSame(1, $product->sizes->last()->fresh()->stock);
         $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey');
-        $this->post(route('jersey.payment', $order->order_number), ['amount' => 50000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
+        $this->post(route('jersey.payment', $order->order_number), ['amount' => 500, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
         $payment = JerseyPayment::first();
         $this->assertSame('pending', $payment->status);
         Storage::disk('local')->assertExists($payment->proof_path);

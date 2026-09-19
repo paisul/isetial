@@ -14,6 +14,12 @@ use Illuminate\Validation\ValidationException;
 
 class JerseyController extends Controller
 {
+    private const MODEL_PRICES = [
+        'Lelaki Pendek' => 199,
+        'Lelaki Panjang' => 249,
+        'Muslimah' => 299,
+    ];
+
     public function create()
     {
         return view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get()]);
@@ -136,7 +142,7 @@ class JerseyController extends Controller
     {
         abort_unless($r->session()->get('jersey_access.'.$order), 403);
         $record = JerseyOrder::where('order_number', $order)->firstOrFail();
-        $d = $r->validate(['amount' => 'required|numeric|min:1000|max:'.$record->balance, 'proof' => 'required|image|max:4096']);
+        $d = $r->validate(['amount' => 'required|numeric|min:1|max:'.$record->balance, 'proof' => 'required|image|max:4096']);
         $path = $r->file('proof')->store('jersey-proofs', 'local');
         JerseyPayment::create(['jersey_order_id' => $record->id, 'amount' => $d['amount'], 'proof_path' => $path]);
 
@@ -177,7 +183,8 @@ class JerseyController extends Controller
             $product = $products->get($item['jersey_product_id']);
             $size = $product?->sizes->firstWhere('id', $item['jersey_size_id']);
             if (! $product || ! $size) return null;
-            $unit = (float) $product->price + (float) $size->price_adjustment;
+            $unit = self::MODEL_PRICES[$item['model']] ?? null;
+            if ($unit === null) return null;
 
             return compact('line', 'item', 'product', 'size', 'unit');
         })->filter()->values();

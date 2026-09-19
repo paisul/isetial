@@ -17,7 +17,7 @@ class PublicController extends Controller
 
     public function about()
     {
-        return view('public.about', ['leaders' => PositionAssignment::with(['person', 'position', 'division'])->whereNull('masjid_id')->where('is_active', true)->whereHas('period', fn ($query) => $query->where('status', 'active'))->orderBy('display_order')->get()]);
+        return view('public.about');
     }
 
     public function structure()

@@ -29,6 +29,7 @@ class FoundationTest extends TestCase
         $this->seed();
         $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan')->assertSee('nav-toggle')->assertSee('toggleMobileNav');
         $this->get('/m/darulhikmah')->assertOk()->assertSee('Darulhikmah');
+        $this->get('/tentang')->assertOk()->assertSeeText('Tentang iSetial Wisdom')->assertDontSeeText('Struktur Pengurus');
         $this->get('/masjid')->assertOk()
             ->assertSee('Darulhikmah')
             ->assertSee("Jami' Darulhakim")

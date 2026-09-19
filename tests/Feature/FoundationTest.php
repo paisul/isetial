@@ -231,4 +231,19 @@ class FoundationTest extends TestCase
         $this->actingAs($admin)->patch(route('admin.orders.update', $order), ['production_status' => 'ready', 'notes' => 'Siap diambil'])->assertRedirect();
         $this->assertDatabaseHas('jersey_orders', ['id' => $order->id, 'production_status' => 'ready']);
     }
+
+    public function test_jersey_admin_can_search_and_filter_orders(): void
+    {
+        $this->seed();
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        JerseyOrder::create(['order_number' => 'JRS-SEARCH-1', 'customer_name' => 'Ahmad Firdaus', 'address' => 'X', 'phone' => '08123', 'total' => 100000, 'production_status' => 'ready']);
+        JerseyOrder::create(['order_number' => 'JRS-SEARCH-2', 'customer_name' => 'Budi', 'address' => 'Y', 'phone' => '08999', 'total' => 100000, 'production_status' => 'queued']);
+
+        $this->actingAs($admin)->get(route('admin.orders', ['q' => 'Ahmad', 'production' => 'ready']))
+            ->assertOk()
+            ->assertSee('JRS-SEARCH-1')
+            ->assertDontSee('JRS-SEARCH-2')
+            ->assertSee('Menampilkan 1 pesanan');
+    }
 }

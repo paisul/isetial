@@ -13,11 +13,44 @@ use Illuminate\Validation\Rule;
 
 class JerseyAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'production' => ['nullable', 'in:active,queued,processing,ready,delivered,cancelled'],
+            'payment' => ['nullable', 'in:pending,unpaid,partial,paid'],
+        ]);
+
+        $orders = JerseyOrder::query()
+            ->with(['items.product', 'items.size', 'payments'])
+            ->when($filters['q'] ?? null, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('order_number', 'like', "%{$search}%")
+                        ->orWhere('customer_name', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
+            ->when(($filters['production'] ?? null) === 'active', fn ($query) => $query->whereIn('production_status', ['queued', 'processing']))
+            ->when(($filters['production'] ?? null) && $filters['production'] !== 'active', fn ($query) => $query->where('production_status', $filters['production']))
+            ->when(($filters['payment'] ?? null) === 'pending', fn ($query) => $query->whereHas('payments', fn ($payments) => $payments->where('status', 'pending')))
+            ->when(($filters['payment'] ?? null) === 'unpaid', fn ($query) => $query->whereDoesntHave('payments', fn ($payments) => $payments->where('status', 'verified')))
+            ->when(($filters['payment'] ?? null) === 'partial', fn ($query) => $query
+                ->whereHas('payments', fn ($payments) => $payments->where('status', 'verified'))
+                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) < jersey_orders.total', ['verified']))
+            ->when(($filters['payment'] ?? null) === 'paid', fn ($query) => $query
+                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) >= jersey_orders.total', ['verified']))
+            ->latest();
+
         return view('admin.orders', [
-            'orders' => JerseyOrder::with(['items.product', 'items.size', 'payments'])->latest()->paginate(20),
+            'orders' => $orders->paginate(20)->withQueryString(),
             'products' => JerseyProduct::with('sizes')->withTrashed()->get(),
+            'summary' => [
+                'all' => JerseyOrder::count(),
+                'pendingPayments' => JerseyPayment::where('status', 'pending')->count(),
+                'inProduction' => JerseyOrder::whereIn('production_status', ['queued', 'processing'])->count(),
+                'ready' => JerseyOrder::where('production_status', 'ready')->count(),
+            ],
+            'filters' => $filters,
         ]);
     }
 

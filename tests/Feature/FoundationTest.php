@@ -109,7 +109,7 @@ class FoundationTest extends TestCase
         $cart = session('jersey_cart');
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
-        $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Checkout sekarang');
+        $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Checkout sekarang')->assertDontSee('Perbarui');
         $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data pemesan')->assertSee('Detail jersey');
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',

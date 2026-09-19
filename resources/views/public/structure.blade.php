@@ -36,6 +36,7 @@
                     @foreach($centralAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
                 </div>
             @endif
+            <div class="desktop-org-fields-label"><span>Bidang-Bidang</span></div>
             <div class="desktop-org-divisions">
                 @foreach($divisionGroups as $group)
                     <section class="desktop-division">

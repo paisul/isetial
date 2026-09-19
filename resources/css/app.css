@@ -30,10 +30,14 @@
 .desktop-org-root { display: flex; justify-content: center; position: relative; }
 .desktop-org-root::after { background: #94a3b8; bottom: -2rem; content: ''; height: 2rem; left: 50%; position: absolute; width: 2px; }
 .desktop-org-central { border-top: 2px solid #94a3b8; display: grid; gap: 2rem; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; margin: 2rem auto 0; max-width: 700px; padding-top: 1.5rem; position: relative; }
-.desktop-org-central::after { background: #94a3b8; bottom: -2rem; content: ''; height: 2rem; left: 50%; position: absolute; width: 2px; }
-.desktop-org-divisions { border-top: 2px solid #94a3b8; display: grid; gap: 1.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 2rem; padding-top: 1.5rem; }
+.desktop-org-central::after { background: #94a3b8; bottom: -3.5rem; content: ''; height: 3.5rem; left: 50%; position: absolute; width: 2px; }
+.desktop-org-fields-label { display: flex; justify-content: center; margin-top: 3.5rem; position: relative; z-index: 1; }
+.desktop-org-fields-label span { background: #065f46; border: 4px solid #d1fae5; border-radius: 9999px; box-shadow: 0 8px 20px rgb(15 23 42 / .12); color: white; font-size: .8rem; font-weight: 900; letter-spacing: .14em; padding: .55rem 1.4rem; text-transform: uppercase; }
+.desktop-org-fields-label::after { background: #94a3b8; bottom: -1.5rem; content: ''; height: 1.5rem; left: 50%; position: absolute; width: 2px; z-index: -1; }
+.desktop-org-divisions { background: #f0fdf4; border: 2px solid #86efac; border-radius: 2rem; display: grid; gap: 1.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1.5rem; padding: 1.25rem; position: relative; }
+.desktop-org-divisions::before { background: #94a3b8; content: ''; height: 2px; left: 8%; position: absolute; right: 8%; top: 0; }
 .desktop-division { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 1.5rem; padding: 1rem; position: relative; }
-.desktop-division::before { background: #94a3b8; content: ''; height: 1.5rem; left: 50%; position: absolute; top: -1.5rem; width: 2px; }
+.desktop-division::before { background: #16a34a; border: 3px solid #dcfce7; border-radius: 9999px; content: ''; height: .8rem; left: 50%; position: absolute; top: -.45rem; transform: translateX(-50%); width: .8rem; }
 .desktop-division > h2 { color: #166534; font-size: .8rem; font-weight: 900; letter-spacing: .12em; margin-bottom: .75rem; text-align: center; text-transform: uppercase; }
 .desktop-division-members { display: grid; gap: .75rem; }
 .desktop-division .org-card { border-radius: 1.25rem; min-height: 78px; width: 100%; }

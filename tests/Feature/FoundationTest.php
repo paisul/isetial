@@ -137,7 +137,7 @@ class FoundationTest extends TestCase
         $period = OrganizationPeriod::whereNull('masjid_id')->where('name', '2026')->firstOrFail();
         $this->assertSame('active', $period->status);
         $this->assertSame(20, PositionAssignment::where('organization_period_id', $period->id)->count());
-        $this->get(route('structure'))->assertOk()->assertSeeText('Solahudin Awae')->assertSeeText('Setiausaha')->assertSeeText('Ihsan Yusoh');
+        $this->get(route('structure'))->assertOk()->assertSeeText('Solahudin Awae')->assertSeeText('Setiausaha')->assertSeeText('Bidang-Bidang')->assertSeeText('Ihsan Yusoh');
     }
 
     public function test_masjid_admin_can_create_only_members_for_assigned_masjid(): void

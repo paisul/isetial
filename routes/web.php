@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/jersey/produk/{product}/ukuran', [JerseyAdminController::class, 'storeSize'])->middleware('role:super-admin')->name('admin.sizes.store');
     Route::patch('/admin/jersey/ukuran/{size}', [JerseyAdminController::class, 'updateSize'])->middleware('role:super-admin')->name('admin.sizes.update');
     Route::patch('/admin/jersey/pesanan/{order}', [JerseyAdminController::class, 'updateOrder'])->middleware('role:super-admin,bendahara')->name('admin.orders.update');
+    Route::delete('/admin/jersey/pesanan/{order}', [JerseyAdminController::class, 'destroyOrder'])->middleware('role:super-admin')->name('admin.orders.destroy');
     Route::patch('/admin/pembayaran/{payment}', [JerseyAdminController::class, 'verifyPayment'])->middleware('role:super-admin,bendahara')->name('admin.payment.verify');
     Route::get('/admin/pembayaran/{payment}/bukti', [JerseyController::class, 'proof'])->name('admin.payment.proof');
     Route::get('/admin/pengaturan', [AdminController::class, 'settings'])->middleware('role:super-admin')->name('admin.settings');

@@ -94,6 +94,13 @@ class JerseyAdminController extends Controller
         return back()->with('success', 'Status produksi diperbarui.');
     }
 
+    public function destroyOrder(JerseyOrder $order)
+    {
+        $order->delete();
+
+        return back()->with('success', "Pesanan {$order->order_number} dihapus.");
+    }
+
     public function verifyPayment(Request $request, JerseyPayment $payment)
     {
         $data = $request->validate(['status' => ['required', 'in:verified,rejected'], 'notes' => ['nullable', 'max:1000']]);

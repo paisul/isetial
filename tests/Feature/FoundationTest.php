@@ -230,6 +230,8 @@ class FoundationTest extends TestCase
         $order = JerseyOrder::create(['order_number' => 'JRS-000010', 'customer_name' => 'A', 'address' => 'X', 'phone' => '081', 'gender' => 'male', 'total' => 120000]);
         $this->actingAs($admin)->patch(route('admin.orders.update', $order), ['production_status' => 'ready', 'notes' => 'Siap diambil'])->assertRedirect();
         $this->assertDatabaseHas('jersey_orders', ['id' => $order->id, 'production_status' => 'ready']);
+        $this->actingAs($admin)->delete(route('admin.orders.destroy', $order))->assertRedirect();
+        $this->assertSoftDeleted('jersey_orders', ['id' => $order->id]);
     }
 
     public function test_jersey_admin_can_search_and_filter_orders(): void

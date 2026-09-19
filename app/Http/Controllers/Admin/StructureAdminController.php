@@ -144,7 +144,7 @@ class StructureAdminController extends Controller
     public function updateAssignment(Request $request, PositionAssignment $assignment)
     {
         $this->authorizeScope($request, $assignment->masjid_id);
-        $data = $this->validateAssignment($request);
+        $data = $this->validateAssignment($request, $assignment);
         unset($data['photo']);
         $period = OrganizationPeriod::findOrFail($data['organization_period_id']);
         abort_if($period->masjid_id !== $assignment->masjid_id, 422, 'Lingkup penempatan tidak dapat dipindahkan.');
@@ -218,13 +218,22 @@ class StructureAdminController extends Controller
         return $request->validate(['masjid_id' => ['nullable', 'exists:masjids,id'], 'name' => ['required', 'max:150'], 'description' => ['nullable', 'max:2000']]);
     }
 
-    private function validateAssignment(Request $request): array
+    private function validateAssignment(Request $request, ?PositionAssignment $assignment = null): array
     {
         return $request->validate([
-            'person_id' => ['required', 'exists:people,id'], 'organization_period_id' => ['required', 'exists:organization_periods,id'],
+            'person_id' => [
+                'required',
+                'exists:people,id',
+                Rule::unique('position_assignments', 'person_id')
+                    ->where(fn ($query) => $query->where('organization_period_id', $request->input('organization_period_id')))
+                    ->ignore($assignment?->id),
+            ],
+            'organization_period_id' => ['required', 'exists:organization_periods,id'],
             'position_id' => ['required', 'exists:positions,id'], 'division_id' => ['nullable', 'exists:divisions,id'],
             'is_active' => ['required', 'boolean'], 'display_order' => ['required', 'integer', 'min:0'],
             'photo' => ['nullable', 'image', 'max:3072'],
+        ], [
+            'person_id.unique' => 'Person ini sudah memiliki jabatan pada periode yang dipilih.',
         ]);
     }
 

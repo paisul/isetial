@@ -36,7 +36,11 @@
     </div>
 
     <form method="post" enctype="multipart/form-data" action="{{route('admin.assignments.store')}}" class="mt-6 grid gap-3 rounded-2xl bg-slate-800 p-6 text-white md:grid-cols-3">@csrf
-        <div class="md:col-span-3"><h2 class="text-xl font-bold">Tempatkan Person pada Jabatan</h2><p class="text-sm text-slate-300">Orang yang sama dapat memegang lebih dari satu jabatan.</p></div>
+        <div class="md:col-span-3">
+            <h2 class="text-xl font-bold">Tempatkan Person pada Jabatan</h2>
+            <p class="text-sm text-slate-300">Satu person hanya dapat memegang satu jabatan dalam periode yang sama.</p>
+            <p class="mt-1 text-sm text-slate-300">Nama belum tersedia? <a href="{{route('admin.members.index')}}" class="font-bold text-amber-300 underline">Tambahkan melalui menu Anggota</a>, lalu kembali ke halaman ini.</p>
+        </div>
         <select name="person_id" required class="rounded-lg border p-2 text-slate-900"><option value="">Pilih person</option>@foreach($people as $p)<option value="{{$p->id}}">{{$p->name}}</option>@endforeach</select>
         <select name="organization_period_id" required class="rounded-lg border p-2 text-slate-900"><option value="">Pilih periode</option>@foreach($periods as $p)<option value="{{$p->id}}">{{$p->name}} · {{$p->masjid?->name ?? 'iSetial'}} · {{$p->status}}</option>@endforeach</select>
         <select name="position_id" required class="rounded-lg border p-2 text-slate-900"><option value="">Pilih jabatan</option>@foreach($positions as $p)<option value="{{$p->id}}">{{$p->name}} · {{$p->masjid?->name ?? 'iSetial'}}</option>@endforeach</select>

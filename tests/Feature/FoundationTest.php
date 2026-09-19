@@ -130,6 +130,24 @@ class FoundationTest extends TestCase
         $this->assertSame(1, OrganizationPeriod::whereNull('masjid_id')->where('status', 'active')->count());
     }
 
+    public function test_person_cannot_hold_multiple_positions_in_the_same_period(): void
+    {
+        $this->seed();
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        $person = Person::create(['name' => 'Satu Jabatan']);
+        $period = OrganizationPeriod::create(['name' => '2030', 'starts_at' => '2030-01-01', 'status' => 'active', 'is_active' => true]);
+        $first = Position::create(['context_type' => 'isetial', 'name' => 'Ketua', 'display_order' => 1]);
+        $second = Position::create(['context_type' => 'isetial', 'name' => 'Setiausaha', 'display_order' => 2]);
+        PositionAssignment::create(['person_id' => $person->id, 'organization_period_id' => $period->id, 'position_id' => $first->id, 'is_active' => true, 'display_order' => 1]);
+
+        $this->actingAs($admin)->post(route('admin.assignments.store'), [
+            'person_id' => $person->id, 'organization_period_id' => $period->id, 'position_id' => $second->id,
+            'is_active' => 1, 'display_order' => 2,
+        ])->assertSessionHasErrors('person_id');
+        $this->assertSame(1, PositionAssignment::where('person_id', $person->id)->where('organization_period_id', $period->id)->count());
+    }
+
     public function test_2026_structure_seeder_populates_the_public_chart_idempotently(): void
     {
         $this->seed(OrganizationStructure2026Seeder::class);
@@ -203,7 +221,7 @@ class FoundationTest extends TestCase
         $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
         $this->assertSame(2, $product->sizes->first()->fresh()->stock);
         $this->assertSame(1, $plusSize->fresh()->stock);
-        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Kirim bukti pembayaran')->assertSee('Progres pembayaran')->assertSee('Masih sisa')->assertSee('min="1"', false);
+        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Kirim bukti pembayaran')->assertSee('Progres pembayaran')->assertSee('Masih sisa')->assertSee('092-671-1380')->assertSee('promptpay-0926711380.png')->assertSee('min="1"', false);
         $this->post(route('jersey.payment', $order->order_number), ['amount' => 500, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
         $payment = JerseyPayment::first();
         $this->assertSame('pending', $payment->status);

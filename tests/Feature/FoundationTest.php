@@ -203,7 +203,7 @@ class FoundationTest extends TestCase
         $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
         $this->assertSame(2, $product->sizes->first()->fresh()->stock);
         $this->assertSame(1, $plusSize->fresh()->stock);
-        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Kirim bukti pembayaran')->assertSee('min="1"', false);
+        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Kirim bukti pembayaran')->assertSee('Progres pembayaran')->assertSee('Masih sisa')->assertSee('min="1"', false);
         $this->post(route('jersey.payment', $order->order_number), ['amount' => 500, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
         $payment = JerseyPayment::first();
         $this->assertSame('pending', $payment->status);

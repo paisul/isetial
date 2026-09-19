@@ -29,7 +29,12 @@ class StructureAdminController extends Controller
             'positions' => Position::with('parent')->where($scope)->orderBy('display_order')->get(),
             'assignments' => PositionAssignment::with(['person', 'position.parent', 'division', 'period', 'masjid'])->where($scope)->orderBy('display_order')->get(),
             'masjids' => Masjid::whereIn('id', $ids)->get(),
-            'people' => Person::whereHas('membership', fn ($q) => $q->whereIn('home_masjid_id', $ids))->orderBy('name')->get(),
+            'people' => Person::where(function ($query) use ($ids, $canGlobal) {
+                $query->whereHas('membership', fn ($q) => $q->whereIn('home_masjid_id', $ids));
+                if ($canGlobal) {
+                    $query->orWhereHas('positions', fn ($q) => $q->whereNull('masjid_id'));
+                }
+            })->orderBy('name')->get(),
             'divisions' => Division::where($scope)->orderBy('name')->get(),
             'canGlobal' => $canGlobal,
         ]);

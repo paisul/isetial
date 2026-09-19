@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Database\Seeders\OrganizationStructure2026Seeder;
 use Tests\TestCase;
 
 class FoundationTest extends TestCase
@@ -126,6 +127,17 @@ class FoundationTest extends TestCase
         $this->assertSame('archived', OrganizationPeriod::where('name', '2026')->value('status'));
         $this->assertSame('active', OrganizationPeriod::where('name', '2027')->value('status'));
         $this->assertSame(1, OrganizationPeriod::whereNull('masjid_id')->where('status', 'active')->count());
+    }
+
+    public function test_2026_structure_seeder_populates_the_public_chart_idempotently(): void
+    {
+        $this->seed(OrganizationStructure2026Seeder::class);
+        $this->seed(OrganizationStructure2026Seeder::class);
+
+        $period = OrganizationPeriod::whereNull('masjid_id')->where('name', '2026')->firstOrFail();
+        $this->assertSame('active', $period->status);
+        $this->assertSame(20, PositionAssignment::where('organization_period_id', $period->id)->count());
+        $this->get(route('structure'))->assertOk()->assertSeeText('Solahudin Awae')->assertSeeText('Setiausaha')->assertSeeText('Ihsan Yusoh');
     }
 
     public function test_masjid_admin_can_create_only_members_for_assigned_masjid(): void

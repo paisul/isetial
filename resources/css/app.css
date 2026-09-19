@@ -27,6 +27,9 @@
 .org-role { background: #16a34a; border-radius: 9999px; color: white; display: inline-block; font-size: .7rem; font-weight: 900; letter-spacing: .05em; margin-bottom: .2rem; padding: .2rem .65rem; text-transform: uppercase; }
 
 .desktop-org { margin: 0 auto; max-width: 1180px; }
+.structure-view-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.structure-view-switch button { color: #475569; }
+.structure-view-switch button.is-active { background: #065f46; color: white; }
 .desktop-org-root { display: flex; justify-content: center; position: relative; }
 .desktop-org-root::after { background: #94a3b8; bottom: -1.5rem; content: ''; height: 1.5rem; left: 50%; position: absolute; width: 2px; }
 .desktop-org-leadership { margin-top: 1.5rem; padding-bottom: .25rem; position: relative; }
@@ -57,6 +60,8 @@
 .desktop-org-central .org-card { width: 100%; }
 
 @media (max-width: 767px) {
+    .structure-desktop-scroll.mobile-desktop-active { display: block; margin-inline: -1rem; overflow-x: auto; padding: .5rem 1rem 1.5rem; }
+    .structure-desktop-scroll.mobile-desktop-active .desktop-org { min-width: 1180px; }
     .mobile-nav.is-open { display: flex; }
     .mobile-nav > a, .mobile-nav > form { border-bottom: 1px solid rgb(6 95 70 / .7); display: block; padding: .75rem .25rem; width: 100%; }
     .mobile-nav > form button { text-align: left; width: 100%; }

@@ -11,11 +11,15 @@
 
 <section class="mx-auto max-w-[1500px] px-4 py-12">
     @if($period && $assignments->isNotEmpty())
+        <div class="structure-view-switch mb-6 rounded-xl bg-white p-2 shadow-sm md:hidden" aria-label="Pilihan tampilan struktur">
+            <button type="button" id="structure-mobile-button" onclick="setStructureView('mobile')" class="rounded-lg px-4 py-2 text-sm font-bold">Mode HP</button>
+            <button type="button" id="structure-desktop-button" onclick="setStructureView('desktop')" class="rounded-lg px-4 py-2 text-sm font-bold">Mode Desktop</button>
+        </div>
         @php
             $positionIds = $positions->pluck('id');
             $roots = $positions->filter(fn ($position) => ! $position->parent_id || ! $positionIds->contains($position->parent_id));
         @endphp
-        <div class="org-chart md:hidden" aria-label="Bagan struktur pengurus versi ponsel">
+        <div id="structure-mobile" class="org-chart md:hidden" aria-label="Bagan struktur pengurus versi ponsel">
             <ul class="org-level org-roots">
                 @foreach($roots as $position)
                     @include('public.partials.structure-node', compact('position', 'positions', 'assignments'))
@@ -39,7 +43,8 @@
             $supportAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && !$rootPositionIds->contains($item->position->parent_id));
             $divisionGroups = $assignments->whereNotNull('division_id')->groupBy('division_id');
         @endphp
-        <div class="desktop-org hidden md:block" aria-label="Bagan struktur pengurus versi desktop">
+        <div id="structure-desktop-scroll" class="structure-desktop-scroll hidden md:block">
+        <div class="desktop-org" aria-label="Bagan struktur pengurus versi desktop">
             <div class="desktop-org-root">
                 @foreach($rootAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
             </div>
@@ -78,6 +83,7 @@
                 @endforeach
             </div>
         </div>
+        </div>
     @else
         <div class="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
             <h2 class="text-2xl font-black">Data pengurus sedang diperbarui</h2>
@@ -85,4 +91,25 @@
         </div>
     @endif
 </section>
+<script>
+    function setStructureView(mode) {
+        const mobile = document.getElementById('structure-mobile');
+        const desktop = document.getElementById('structure-desktop-scroll');
+        const mobileButton = document.getElementById('structure-mobile-button');
+        const desktopButton = document.getElementById('structure-desktop-button');
+        if (!mobile || !desktop) return;
+
+        const showDesktop = mode === 'desktop';
+        mobile.classList.toggle('hidden', showDesktop);
+        desktop.classList.toggle('hidden', !showDesktop);
+        desktop.classList.toggle('mobile-desktop-active', showDesktop);
+        mobileButton?.classList.toggle('is-active', !showDesktop);
+        desktopButton?.classList.toggle('is-active', showDesktop);
+        localStorage.setItem('structure-view', showDesktop ? 'desktop' : 'mobile');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setStructureView(localStorage.getItem('structure-view') === 'desktop' ? 'desktop' : 'mobile');
+    });
+</script>
 @endsection

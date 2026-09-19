@@ -102,10 +102,13 @@ class FoundationTest extends TestCase
         Storage::fake('local');
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
+        $this->get(route('jersey.create'))->assertOk()->assertSee('Tambah Jersey')->assertSee('Daftar jersey');
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
-            'phone' => '08123456789', 'jersey_product_id' => $product->id,
-            'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Pria', 'sleeve' => 'short', 'quantity' => 2,
+            'phone' => '08123456789', 'items' => [
+                ['jersey_product_id' => $product->id, 'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 2],
+                ['jersey_product_id' => $product->id, 'jersey_size_id' => $product->sizes->last()->id, 'model' => 'Muslimah', 'sleeve' => 'long', 'quantity' => 1],
+            ],
         ]);
         $response->assertSessionHasNoErrors();
         $order = JerseyOrder::with('items')->first();
@@ -113,7 +116,9 @@ class FoundationTest extends TestCase
         $this->assertSame('JRS-000001', $order->order_number);
         $this->assertNull($order->birth_date);
         $this->assertNull($order->gender);
-        $this->assertSame(2, $order->items->first()->quantity);
+        $this->assertCount(2, $order->items);
+        $this->assertSame(3, $order->items->sum('quantity'));
+        $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
         $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey');
         $this->post(route('jersey.payment', $order->order_number), ['amount' => 50000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
         $payment = JerseyPayment::first();

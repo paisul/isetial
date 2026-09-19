@@ -6,10 +6,10 @@ use App\Models\JerseyOrder;
 use App\Models\JerseyOrderItem;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
-use App\Models\JerseySize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class JerseyController extends Controller
 {
@@ -20,18 +20,34 @@ class JerseyController extends Controller
 
     public function store(Request $r)
     {
-        $d = $r->validate(['customer_name' => 'required|max:150', 'address' => 'required|max:1000', 'phone' => 'required|max:30', 'jersey_product_id' => 'required|exists:jersey_products,id', 'jersey_size_id' => 'required|exists:jersey_sizes,id', 'model' => 'required|max:50|not_in:Anak', 'sleeve' => 'required|in:short,long', 'quantity' => 'required|integer|min:1|max:2']);
-        $product = JerseyProduct::where('is_active', true)->findOrFail($d['jersey_product_id']);
-        $size = JerseySize::whereBelongsTo($product, 'product')->findOrFail($d['jersey_size_id']);
-        $order = DB::transaction(function () use ($d, $product, $size) {
+        $d = $r->validate([
+            'customer_name' => ['required', 'string', 'max:150'], 'address' => ['required', 'string', 'max:1000'], 'phone' => ['required', 'string', 'max:30'],
+            'items' => ['required', 'array', 'min:1', 'max:20'], 'items.*.jersey_product_id' => ['required', 'integer', 'exists:jersey_products,id'],
+            'items.*.jersey_size_id' => ['required', 'integer', 'exists:jersey_sizes,id'], 'items.*.model' => ['required', 'in:Lelaki Pendek,Lelaki Panjang,Muslimah'],
+            'items.*.sleeve' => ['required', 'in:short,long'], 'items.*.quantity' => ['required', 'integer', 'min:1', 'max:20'],
+        ]);
+        $models = ['Lelaki Pendek' => 'short', 'Lelaki Panjang' => 'long', 'Muslimah' => 'long'];
+        $products = JerseyProduct::with('sizes')->where('is_active', true)->whereIn('id', collect($d['items'])->pluck('jersey_product_id'))->get()->keyBy('id');
+        $items = collect($d['items'])->map(function (array $item, int $index) use ($models, $products) {
+            $product = $products->get($item['jersey_product_id']);
+            if (! $product) throw ValidationException::withMessages(["items.$index.jersey_product_id" => 'Produk jersey tidak tersedia.']);
+            $size = $product->sizes->firstWhere('id', $item['jersey_size_id']);
+            if (! $size) throw ValidationException::withMessages(["items.$index.jersey_size_id" => 'Ukuran tidak sesuai dengan produk yang dipilih.']);
+            if ($models[$item['model']] !== $item['sleeve']) throw ValidationException::withMessages(["items.$index.model" => 'Model dan jenis lengan tidak sesuai.']);
             $unit = (float) $product->price + (float) $size->price_adjustment;
+            return compact('item', 'product', 'size', 'unit');
+        });
+        $order = DB::transaction(function () use ($d, $items) {
             $order = JerseyOrder::create([
                 ...collect($d)->only(['customer_name', 'address', 'phone'])->all(),
                 'order_number' => 'TEMP-'.str()->uuid(),
-                'total' => $unit * $d['quantity'],
+                'total' => $items->sum(fn ($entry) => $entry['unit'] * $entry['item']['quantity']),
             ]);
             $order->update(['order_number' => 'JRS-'.str_pad((string) $order->id, 6, '0', STR_PAD_LEFT)]);
-            JerseyOrderItem::create(['jersey_order_id' => $order->id, 'jersey_product_id' => $product->id, 'jersey_size_id' => $size->id, 'model' => $d['model'], 'sleeve' => $d['sleeve'], 'quantity' => $d['quantity'], 'unit_price' => $unit, 'subtotal' => $unit * $d['quantity']]);
+            foreach ($items as $entry) {
+                $item = $entry['item'];
+                JerseyOrderItem::create(['jersey_order_id' => $order->id, 'jersey_product_id' => $entry['product']->id, 'jersey_size_id' => $entry['size']->id, 'model' => $item['model'], 'sleeve' => $item['sleeve'], 'quantity' => $item['quantity'], 'unit_price' => $entry['unit'], 'subtotal' => $entry['unit'] * $item['quantity']]);
+            }
 
             return $order;
         });

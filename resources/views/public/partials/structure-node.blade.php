@@ -10,7 +10,15 @@
     </div>
     @if($children->isNotEmpty())
         <ul class="org-level">
+            @php $mobileFieldLabelShown = false; @endphp
             @foreach($children as $child)
+                @php
+                    $isField = $assignments->where('position_id', $child->id)->whereNotNull('division_id')->isNotEmpty();
+                @endphp
+                @if(!$position->parent_id && $isField && !$mobileFieldLabelShown)
+                    <li class="mobile-fields-label"><span>Bidang-Bidang</span></li>
+                    @php $mobileFieldLabelShown = true; @endphp
+                @endif
                 @include('public.partials.structure-node', ['position' => $child, 'positions' => $positions, 'assignments' => $assignments])
             @endforeach
         </ul>

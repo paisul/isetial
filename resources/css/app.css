@@ -64,6 +64,9 @@
     .org-level { border-left: 2px solid #86efac; margin-left: 1.2rem; padding: 1rem 0 0 1rem; }
     .org-roots { border-left: 0; margin-left: 0; padding: 0; }
     .org-node { margin-bottom: 1rem; }
+    .mobile-fields-label { list-style: none; margin: .5rem 0 1rem -1rem; position: relative; }
+    .mobile-fields-label::before { background: #86efac; content: ''; height: 2px; left: 0; position: absolute; top: 50%; width: 1rem; }
+    .mobile-fields-label span { background: #065f46; border-radius: 9999px; color: white; display: inline-block; font-size: .72rem; font-weight: 900; letter-spacing: .12em; margin-left: 1rem; padding: .45rem 1rem; text-transform: uppercase; }
     .org-node::before, .org-node::after, .org-level .org-level::before { display: none; }
     .org-card { margin: 0; width: 100%; }
 }

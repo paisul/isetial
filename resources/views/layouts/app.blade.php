@@ -12,13 +12,13 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 <nav class="sticky top-0 z-20 bg-emerald-950 text-white shadow">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+    <div class="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
         <a href="{{ route('home') }}" class="flex items-center gap-3 text-xl font-black tracking-tight">
             <img src="{{ asset('favicon.png') }}?v=20260919" alt="Logo iSetial Wisdom" width="42" height="42" class="h-[42px] w-[42px] rounded-full object-cover" loading="eager">
             <span>iSETIAL <span class="text-amber-400">WISDOM</span></span>
         </a>
-        <button type="button" onclick="document.getElementById('nav').classList.toggle('hidden')" class="md:hidden" aria-label="Buka navigasi">☰</button>
-        <div id="nav" class="hidden gap-5 text-sm md:flex">
+        <button id="nav-toggle" type="button" onclick="toggleMobileNav()" class="rounded-lg border border-emerald-700 px-3 py-2 text-xl leading-none md:hidden" aria-label="Buka navigasi" aria-controls="nav" aria-expanded="false">☰</button>
+        <div id="nav" class="mobile-nav absolute left-0 top-full hidden w-full flex-col gap-1 bg-emerald-950 px-4 pb-5 pt-2 text-sm shadow-xl md:static md:flex md:w-auto md:flex-row md:items-center md:gap-5 md:bg-transparent md:p-0 md:shadow-none">
             @if(isset($activeMasjid))
                 <a href="{{ route(request()->routeIs('local.*')?'local.portal.home':'portal.home',$activeMasjid) }}">Beranda</a>
                 <a href="{{ route(request()->routeIs('local.*')?'local.portal.profile':'portal.profile',$activeMasjid) }}">Profil</a>
@@ -43,6 +43,16 @@
         </div>
     </div>
 </nav>
+<script>
+    function toggleMobileNav() {
+        const menu = document.getElementById('nav');
+        const button = document.getElementById('nav-toggle');
+        const isOpen = menu.classList.toggle('is-open');
+        menu.classList.toggle('hidden', !isOpen);
+        button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        button.textContent = isOpen ? '✕' : '☰';
+    }
+</script>
 @if(session('success'))
     <div class="mx-auto mt-4 max-w-5xl rounded-xl bg-emerald-100 px-4 py-3 text-emerald-900">{{session('success')}}</div>
 @endif

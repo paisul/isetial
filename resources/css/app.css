@@ -27,6 +27,9 @@
 .org-role { background: #16a34a; border-radius: 9999px; color: white; display: inline-block; font-size: .7rem; font-weight: 900; letter-spacing: .05em; margin-bottom: .2rem; padding: .2rem .65rem; text-transform: uppercase; }
 
 @media (max-width: 767px) {
+    .mobile-nav.is-open { display: flex; }
+    .mobile-nav > a, .mobile-nav > form { border-bottom: 1px solid rgb(6 95 70 / .7); display: block; padding: .75rem .25rem; width: 100%; }
+    .mobile-nav > form button { text-align: left; width: 100%; }
     .org-level, .org-node { align-items: stretch; display: block; min-width: 0; }
     .org-level { border-left: 2px solid #86efac; margin-left: 1.2rem; padding: 1rem 0 0 1rem; }
     .org-roots { border-left: 0; margin-left: 0; padding: 0; }

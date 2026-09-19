@@ -77,9 +77,10 @@ class FoundationTest extends TestCase
         $this->seed();
         $user = User::factory()->create();
         $user->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        Person::create(['name' => 'Person Tanpa Jabatan']);
         $this->actingAs($user)->get(route('admin.members.index'))->assertOk()->assertSeeText('Tambah Anggota');
         $this->actingAs($user)->get(route('admin.content.index'))->assertOk()->assertSee('Tambah Kegiatan');
-        $this->actingAs($user)->get(route('admin.structure.index'))->assertOk()->assertSeeText('Tempatkan Person pada Jabatan');
+        $this->actingAs($user)->get(route('admin.structure.index'))->assertOk()->assertSeeText('Tempatkan Person pada Jabatan')->assertSeeText('Person Tanpa Jabatan');
     }
 
     public function test_structure_admin_can_build_and_publish_dynamic_hierarchy(): void

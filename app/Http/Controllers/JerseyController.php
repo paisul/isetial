@@ -20,6 +20,9 @@ class JerseyController extends Controller
         'Muslimah' => 299,
     ];
 
+    private const PLUS_SIZE_SURCHARGE = 20;
+    private const PLUS_SIZES = ['3XL', '4XL', '5XL'];
+
     public function create()
     {
         return view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get()]);
@@ -183,8 +186,9 @@ class JerseyController extends Controller
             $product = $products->get($item['jersey_product_id']);
             $size = $product?->sizes->firstWhere('id', $item['jersey_size_id']);
             if (! $product || ! $size) return null;
-            $unit = self::MODEL_PRICES[$item['model']] ?? null;
-            if ($unit === null) return null;
+            $basePrice = self::MODEL_PRICES[$item['model']] ?? null;
+            if ($basePrice === null) return null;
+            $unit = $basePrice + (in_array($size->name, self::PLUS_SIZES, true) ? self::PLUS_SIZE_SURCHARGE : 0);
 
             return compact('line', 'item', 'product', 'size', 'unit');
         })->filter()->values();

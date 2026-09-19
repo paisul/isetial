@@ -102,13 +102,18 @@ class FoundationTest extends TestCase
         Storage::fake('local');
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
-        $this->get(route('jersey.create'))->assertOk()->assertSee('Tambah jersey')->assertSee('Periksa pesanan');
+        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan ke Keranjang')->assertSee('Bayar Sekarang');
+        $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
+        $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertRedirect(route('jersey.cart'));
+        $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->last()->id, 'model' => 'Muslimah', 'sleeve' => 'long'])->assertRedirect(route('jersey.cart'));
+        $cart = session('jersey_cart');
+        $lineIds = array_keys($cart);
+        $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
+        $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Checkout sekarang');
+        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data pemesan')->assertSee('Detail jersey');
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
-            'phone' => '08123456789', 'items' => [
-                ['jersey_product_id' => $product->id, 'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 2],
-                ['jersey_product_id' => $product->id, 'jersey_size_id' => $product->sizes->last()->id, 'model' => 'Muslimah', 'sleeve' => 'long', 'quantity' => 1],
-            ],
+            'phone' => '08123456789', 'cart_line_ids' => $lineIds,
         ]);
         $response->assertSessionHasNoErrors();
         $order = JerseyOrder::with('items')->first();

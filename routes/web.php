@@ -27,6 +27,11 @@ Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth')->
 Route::prefix('jersey')->name('jersey.')->group(function () {
     Route::get('/pesan', [JerseyController::class, 'create'])->name('create');
     Route::post('/pesan', [JerseyController::class, 'store'])->middleware('throttle:10,1')->name('store');
+    Route::post('/keranjang', [JerseyController::class, 'addToCart'])->name('cart.add');
+    Route::get('/keranjang', [JerseyController::class, 'cart'])->name('cart');
+    Route::patch('/keranjang/{line}', [JerseyController::class, 'updateCart'])->name('cart.update');
+    Route::delete('/keranjang/{line}', [JerseyController::class, 'removeFromCart'])->name('cart.remove');
+    Route::get('/checkout', [JerseyController::class, 'checkout'])->name('checkout');
     Route::get('/cek', [JerseyController::class, 'lookup'])->name('lookup');
     Route::post('/cek', [JerseyController::class, 'find'])->middleware('throttle:8,1')->name('find');
     Route::get('/pesanan/{order}', [JerseyController::class, 'show'])->name('show');

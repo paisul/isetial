@@ -102,6 +102,8 @@ class FoundationTest extends TestCase
         Storage::fake('local');
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
+        $product->sizes->first()->update(['stock' => 4]);
+        $product->sizes->last()->update(['stock' => 2]);
         $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
         $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1]);
@@ -124,6 +126,8 @@ class FoundationTest extends TestCase
         $this->assertCount(2, $order->items);
         $this->assertSame(3, $order->items->sum('quantity'));
         $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
+        $this->assertSame(2, $product->sizes->first()->fresh()->stock);
+        $this->assertSame(1, $product->sizes->last()->fresh()->stock);
         $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey');
         $this->post(route('jersey.payment', $order->order_number), ['amount' => 50000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
         $payment = JerseyPayment::first();
@@ -147,6 +151,8 @@ class FoundationTest extends TestCase
         $this->actingAs($admin)->post(route('admin.products.store'), ['name' => 'Jersey Anak', 'description' => 'Khusus anak', 'price' => 120000, 'sizes' => 'S, M'])->assertRedirect();
         $product = JerseyProduct::where('name', 'Jersey Anak')->firstOrFail();
         $this->assertCount(2, $product->sizes);
+        $this->actingAs($admin)->patch(route('admin.sizes.update', $product->sizes->first()), ['stock' => 12])->assertRedirect();
+        $this->assertSame(12, $product->sizes->first()->fresh()->stock);
         $order = JerseyOrder::create(['order_number' => 'JRS-000010', 'customer_name' => 'A', 'address' => 'X', 'phone' => '081', 'gender' => 'male', 'total' => 120000]);
         $this->actingAs($admin)->patch(route('admin.orders.update', $order), ['production_status' => 'ready', 'notes' => 'Siap diambil'])->assertRedirect();
         $this->assertDatabaseHas('jersey_orders', ['id' => $order->id, 'production_status' => 'ready']);

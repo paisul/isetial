@@ -6,6 +6,7 @@ use App\Models\JerseyOrder;
 use App\Models\JerseyOrderItem;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
+use App\Models\JerseySize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -28,6 +29,12 @@ class JerseyController extends Controller
         $items = $this->cartEntries($lineIds);
         if ($items->count() !== count($lineIds)) throw ValidationException::withMessages(['cart_line_ids' => 'Sebagian item keranjang tidak tersedia. Silakan periksa kembali keranjang.']);
         $order = DB::transaction(function () use ($d, $items) {
+            foreach ($items as $entry) {
+                $size = JerseySize::lockForUpdate()->findOrFail($entry['size']->id);
+                if ($size->stock !== null && $size->stock < $entry['item']['quantity']) {
+                    throw ValidationException::withMessages(['cart_line_ids' => "Stok ukuran {$size->name} tidak mencukupi."]);
+                }
+            }
             $order = JerseyOrder::create([
                 ...collect($d)->only(['customer_name', 'address', 'phone'])->all(),
                 'order_number' => 'TEMP-'.str()->uuid(),
@@ -37,6 +44,7 @@ class JerseyController extends Controller
             foreach ($items as $entry) {
                 $item = $entry['item'];
                 JerseyOrderItem::create(['jersey_order_id' => $order->id, 'jersey_product_id' => $entry['product']->id, 'jersey_size_id' => $entry['size']->id, 'model' => $item['model'], 'sleeve' => $item['sleeve'], 'quantity' => $item['quantity'], 'unit_price' => $entry['unit'], 'subtotal' => $entry['unit'] * $item['quantity']]);
+                if ($entry['size']->stock !== null) JerseySize::whereKey($entry['size']->id)->decrement('stock', $item['quantity']);
             }
 
             return $order;
@@ -152,6 +160,8 @@ class JerseyController extends Controller
         $product = JerseyProduct::with('sizes')->where('is_active', true)->find($item['jersey_product_id']);
         if (! $product) throw ValidationException::withMessages(['jersey_product_id' => 'Produk jersey tidak tersedia.']);
         if (! $product->sizes->contains('id', $item['jersey_size_id'])) throw ValidationException::withMessages(['jersey_size_id' => 'Ukuran tidak sesuai dengan produk yang dipilih.']);
+        $size = $product->sizes->firstWhere('id', $item['jersey_size_id']);
+        if ($size->stock !== null && $size->stock < $item['quantity']) throw ValidationException::withMessages(['quantity' => 'Jumlah melebihi stok yang tersedia.']);
         if ($models[$item['model']] !== $item['sleeve']) throw ValidationException::withMessages(['model' => 'Model dan jenis lengan tidak sesuai.']);
 
         return $item;

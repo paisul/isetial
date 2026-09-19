@@ -47,6 +47,13 @@ class JerseyAdminController extends Controller
         return back()->with('success', 'Ukuran ditambahkan.');
     }
 
+    public function updateSize(Request $request, JerseySize $size)
+    {
+        $size->update($request->validate(['stock' => ['nullable', 'integer', 'min:0', 'max:100000']]));
+
+        return back()->with('success', 'Stok ukuran diperbarui.');
+    }
+
     public function updateOrder(Request $request, JerseyOrder $order)
     {
         $order->update($request->validate(['production_status' => ['required', 'in:queued,processing,ready,delivered,cancelled'], 'notes' => ['nullable', 'max:2000']]));

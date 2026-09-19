@@ -24,18 +24,26 @@
         </div>
         @php
             $rootAssignments = $assignments->filter(fn ($item) => !$item->position->parent_id);
-            $centralAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id);
+            $deputyAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && str_starts_with(mb_strtolower($item->position->name), 'wakil'));
+            $centralAssignments = $assignments->filter(fn ($item) => !$item->division_id && $item->position->parent_id && !str_starts_with(mb_strtolower($item->position->name), 'wakil'));
             $divisionGroups = $assignments->whereNotNull('division_id')->groupBy('division_id');
         @endphp
         <div class="desktop-org hidden md:block" aria-label="Bagan struktur pengurus versi desktop">
             <div class="desktop-org-root">
                 @foreach($rootAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
             </div>
-            @if($centralAssignments->isNotEmpty())
-                <div class="desktop-org-central">
-                    @foreach($centralAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
-                </div>
-            @endif
+            <div class="desktop-org-leadership">
+                @if($deputyAssignments->isNotEmpty())
+                    <div class="desktop-org-deputy">
+                        @foreach($deputyAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
+                    </div>
+                @endif
+                @if($centralAssignments->isNotEmpty())
+                    <div class="desktop-org-central">
+                        @foreach($centralAssignments as $holder) @include('public.partials.structure-card', ['holder' => $holder]) @endforeach
+                    </div>
+                @endif
+            </div>
             <div class="desktop-org-fields-label"><span>Bidang-Bidang</span></div>
             <div class="desktop-org-divisions">
                 @foreach($divisionGroups as $group)

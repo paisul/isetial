@@ -148,6 +148,17 @@ class FoundationTest extends TestCase
         $this->assertSame(1, PositionAssignment::where('person_id', $person->id)->where('organization_period_id', $period->id)->count());
     }
 
+    public function test_deputy_position_uses_the_side_branch_layout(): void
+    {
+        $this->seed(OrganizationStructure2026Seeder::class);
+        $period = OrganizationPeriod::where('name', '2026')->firstOrFail();
+        $chair = Position::where('name', 'Ketua Umum')->firstOrFail();
+        $deputy = Position::create(['context_type' => 'isetial', 'name' => 'Wakil I', 'parent_id' => $chair->id, 'display_order' => 2]);
+        PositionAssignment::create(['person_id' => Person::create(['name' => 'Wakil Pengujian'])->id, 'organization_period_id' => $period->id, 'position_id' => $deputy->id, 'is_active' => true, 'display_order' => 2]);
+
+        $this->get(route('structure'))->assertOk()->assertSee('desktop-org-deputy')->assertSeeText('Wakil Pengujian');
+    }
+
     public function test_2026_structure_seeder_populates_the_public_chart_idempotently(): void
     {
         $this->seed(OrganizationStructure2026Seeder::class);

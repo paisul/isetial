@@ -22,7 +22,13 @@ class FoundationTest extends TestCase
     {
         $this->seed();
         $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan');
-        $this->get('/m/darulhikmah')->assertOk()->assertSee('Darul Hikmah');
+        $this->get('/m/darulhikmah')->assertOk()->assertSee('Darulhikmah');
+        $this->get('/masjid')->assertOk()
+            ->assertSee('Darulhikmah')
+            ->assertSee("Jami' Darulhakim")
+            ->assertSee('Al-fatonah')
+            ->assertSee('Jannatussalam')
+            ->assertSee('Darulaman');
     }
 
     public function test_masjid_activity_is_isolated_from_other_portal(): void

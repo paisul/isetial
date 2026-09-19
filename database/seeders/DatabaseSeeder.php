@@ -24,8 +24,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        foreach ([['Darul Hikmah', 'darulhikmah'], ['Jami Hakim', 'jamihakim'], ['Fatimah', 'fatimah'], ['Naim', 'naim'], ['Aman', 'aman']] as [$name,$slug]) {
-            Masjid::firstOrCreate(['slug' => $slug], ['name' => $name, 'description' => 'Masjid anggota iSetial Wisdom.']);
+        foreach ([['Darulhikmah', 'darulhikmah'], ["Jami' Darulhakim", 'jamihakim'], ['Al-fatonah', 'fatimah'], ['Jannatussalam', 'naim'], ['Darulaman', 'aman']] as [$name,$slug]) {
+            Masjid::updateOrCreate(['slug' => $slug], ['name' => $name, 'description' => 'Masjid anggota iSetial Wisdom.']);
         }
         $roles = ['Super Admin' => 'super-admin', 'Ketua' => 'ketua', 'Wakil Ketua' => 'wakil-ketua', 'Sekretaris' => 'sekretaris', 'Bendahara' => 'bendahara', 'Pengurus' => 'pengurus', 'Anggota' => 'anggota', 'Admin Masjid' => 'admin-masjid'];
         foreach ($roles as $name => $slug) {

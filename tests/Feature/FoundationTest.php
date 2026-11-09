@@ -290,6 +290,28 @@ class FoundationTest extends TestCase
         $this->actingAs($admin)->get(route('admin.orders'))->assertOk()->assertSee('Petugas (10/10)')->assertSee('Petugas 1')->assertSee('Link dashboard pribadi petugas');
     }
 
+    public function test_public_jersey_link_creates_a_general_order_without_an_agent(): void
+    {
+        Storage::fake('local');
+        $this->seed();
+        $product = JerseyProduct::with('sizes')->firstOrFail();
+        $selection = ['jersey_product_id' => $product->id, 'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
+
+        $this->get(route('jersey.create'))->assertOk();
+        $this->postJson(route('jersey.cart.add'), $selection)->assertOk();
+        $lineIds = array_keys(session('jersey_cart'));
+        session(['jersey_payment_code' => 7]);
+        $response = $this->post(route('jersey.store'), [
+            'customer_name' => 'Pemesan Umum', 'address' => 'Alamat Umum', 'phone' => '0800000000',
+            'cart_line_ids' => $lineIds, 'proof' => UploadedFile::fake()->image('umum.jpg'),
+        ]);
+
+        $order = JerseyOrder::where('customer_name', 'Pemesan Umum')->firstOrFail();
+        $response->assertRedirect(route('jersey.show', $order->order_number));
+        $this->assertNull($order->jersey_agent_id);
+        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Umum');
+    }
+
     public function test_agent_dashboard_only_exposes_orders_and_proofs_from_its_private_link(): void
     {
         Storage::fake('local');

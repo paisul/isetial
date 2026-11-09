@@ -66,7 +66,6 @@ class JerseyController extends Controller
         $items = $this->cartEntries($lineIds);
         if ($items->count() !== count($lineIds)) throw ValidationException::withMessages(['cart_line_ids' => 'Sebagian item keranjang tidak tersedia. Silakan periksa kembali keranjang.']);
         $agent = $this->currentAgent();
-        abort_unless($agent, 403, 'Gunakan link petugas yang diberikan admin untuk membuat pesanan.');
         $paymentCode = $r->session()->pull('jersey_payment_code');
         if ($paymentCode === null) throw ValidationException::withMessages(['proof' => 'Kode pembayaran kedaluwarsa. Buka kembali halaman checkout dan periksa nominal terbaru.']);
         $proofPath = $r->file('proof')->store('jersey-proofs', 'local');
@@ -80,7 +79,7 @@ class JerseyController extends Controller
             }
             $order = JerseyOrder::create([
                 ...collect($d)->only(['customer_name', 'address', 'phone'])->all(),
-                'jersey_agent_id' => $agent->id,
+                'jersey_agent_id' => $agent?->id,
                 'order_number' => 'TEMP-'.str()->uuid(),
                 'total' => $items->sum(fn ($entry) => $entry['unit'] * $entry['item']['quantity']),
                 'payment_code' => $paymentCode,
@@ -153,7 +152,6 @@ class JerseyController extends Controller
         if ($items->isEmpty()) return redirect()->route('jersey.cart')->withErrors(['cart' => 'Keranjang masih kosong.']);
 
         $agent = $this->currentAgent();
-        if (! $agent) return redirect()->route('jersey.create')->withErrors(['agent' => 'Pemesanan hanya dapat dilakukan melalui link petugas resmi.']);
         $paymentCode = $r->session()->get('jersey_payment_code');
         if ($paymentCode === null) {
             $usedCodes = JerseyOrder::whereDate('created_at', today())->whereNotNull('payment_code')->pluck('payment_code')->all();

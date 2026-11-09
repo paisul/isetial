@@ -6,7 +6,7 @@
         'Beranda': 'หน้าแรก', 'Profil': 'ข้อมูล', 'Kegiatan': 'กิจกรรม', 'Pengumuman': 'ประกาศ',
         'Tentang': 'เกี่ยวกับเรา', 'Pengurus': 'คณะกรรมการ', 'Masjid': 'มัสยิด', 'Pedoman': 'แนวทาง',
         'Jersey': 'เสื้อทีม', 'Kontak': 'ติดต่อ', 'Portal Saya': 'พอร์ทัลของฉัน', 'Keluar': 'ออกจากระบบ',
-        'Login': 'เข้าสู่ระบบ', 'Buka navigasi': 'เปิดเมนู', 'Tutup navigasi': 'ปิดเมนู',
+        'Login': 'เข้าสู่ระบบ', 'Buka navigasi': 'เปิดเมนู', 'Tutup navigasi': 'ปิดเมนู', 'Umum': 'ทั่วไป',
         'Pemuda-Pemudi 5 Masjid': 'เยาวชนจาก 5 มัสยิด',
         'Bersatu · Bertumbuh · Bermanfaat': 'รวมพลัง · เติบโต · สร้างประโยชน์',
         'iSetial Wisdom menyatukan generasi muda masjid untuk belajar, berkarya, dan menghadirkan manfaat bagi masyarakat.': 'iSetial Wisdom รวมเยาวชนมัสยิดให้เรียนรู้ สร้างสรรค์ และทำประโยชน์เพื่อชุมชน',

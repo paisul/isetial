@@ -31,7 +31,9 @@ class FoundationTest extends TestCase
     {
         $this->seed();
         $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan')->assertSee('nav-toggle')->assertSee('toggleMobileNav')->assertSee('data-locale="th"', false)->assertSee('js/locale.js');
-        $this->assertStringContainsString('จัดการเสื้อทีม', file_get_contents(public_path('js/locale.js')));
+        $localeScript = file_get_contents(public_path('js/locale.js'));
+        $this->assertStringContainsString('จัดการเสื้อทีม', $localeScript);
+        $this->assertStringContainsString('กรอกข้อมูลผู้สั่งซื้อ ชำระผ่าน PromptPay แล้วอัปโหลดหลักฐาน', $localeScript);
         $this->get('/m/darulhikmah')->assertOk()->assertSee('Darulhikmah');
         $this->get('/tentang')->assertOk()->assertSeeText('Tentang iSetial Wisdom')->assertDontSeeText('Struktur Pengurus');
         $this->get('/masjid')->assertOk()

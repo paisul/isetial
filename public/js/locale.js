@@ -195,7 +195,7 @@
         if (!(element instanceof Element) || element.closest('[data-no-translate]')) return;
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
         while (walker.nextNode()) applyText(walker.currentNode, refresh);
-        const targets = [element, ...element.querySelectorAll('[placeholder], [aria-label], [title]')];
+        const targets = [element, ...element.querySelectorAll('[placeholder], [aria-label], [title], [alt]')];
         targets.forEach(target => {
             const saved = originalAttributes.get(target) || {};
             ['placeholder', 'aria-label', 'title', 'alt'].forEach(attribute => {

@@ -7,6 +7,7 @@
         'Tentang': 'เกี่ยวกับเรา', 'Pengurus': 'คณะกรรมการ', 'Masjid': 'มัสยิด', 'Pedoman': 'แนวทาง',
         'Jersey': 'เสื้อทีม', 'Kontak': 'ติดต่อ', 'Portal Saya': 'พอร์ทัลของฉัน', 'Keluar': 'ออกจากระบบ',
         'Login': 'เข้าสู่ระบบ', 'Buka navigasi': 'เปิดเมนู', 'Tutup navigasi': 'ปิดเมนู', 'Umum': 'ทั่วไป',
+        'Petugas Umum': 'เจ้าหน้าที่ทั่วไป', 'Lelaki Pendek': 'ผู้ชายแขนสั้น', 'Lelaki Panjang': 'ผู้ชายแขนยาว',
         'Pemuda-Pemudi 5 Masjid': 'เยาวชนจาก 5 มัสยิด',
         'Bersatu · Bertumbuh · Bermanfaat': 'รวมพลัง · เติบโต · สร้างประโยชน์',
         'iSetial Wisdom menyatukan generasi muda masjid untuk belajar, berkarya, dan menghadirkan manfaat bagi masyarakat.': 'iSetial Wisdom รวมเยาวชนมัสยิดให้เรียนรู้ สร้างสรรค์ และทำประโยชน์เพื่อชุมชน',
@@ -136,6 +137,7 @@
 
     const patterns = [
         [/^Petugas (.+)$/u, 'เจ้าหน้าที่ $1'], [/^Periode (.+)$/u, 'วาระ $1'],
+        [/^© (\d{4}) iSetial Wisdom · Pemuda-Pemudi 5 Masjid$/u, '© $1 iSetial Wisdom · เยาวชนจาก 5 มัสยิด'],
         [/^(.+) · Lelaki Pendek · Pendek · (.+)$/u, '$1 · ผู้ชายแขนสั้น · แขนสั้น · $2'],
         [/^(.+) · Lelaki Panjang · Panjang · (.+)$/u, '$1 · ผู้ชายแขนยาว · แขนยาว · $2'],
         [/^(.+) · Muslimah · Panjang · (.+)$/u, '$1 · มุสลิมะฮ์ · แขนยาว · $2'],

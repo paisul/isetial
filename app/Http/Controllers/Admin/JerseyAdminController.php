@@ -10,6 +10,7 @@ use App\Models\JerseyProduct;
 use App\Models\JerseySize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class JerseyAdminController extends Controller
@@ -130,9 +131,11 @@ class JerseyAdminController extends Controller
     {
         $data = $request->validate(['name' => ['required', 'max:150'], 'model' => ['required', 'in:Lelaki Pendek,Lelaki Panjang,Muslimah'], 'description' => ['nullable', 'max:2000'], 'price' => ['required', 'numeric', 'min:0'], 'is_active' => ['required', 'boolean'], 'image' => ['nullable', 'image', 'max:4096']]);
         $data['sleeve'] = $data['model'] === 'Lelaki Pendek' ? 'short' : 'long';
+        $oldImagePath = $product->image_path;
         if (isset($data['image'])) $data['image_path'] = $data['image']->store('jersey/products', 'public');
         unset($data['image']);
         $product->update($data);
+        if (isset($data['image_path']) && $oldImagePath && ! str_starts_with($oldImagePath, 'images/')) Storage::disk('public')->delete($oldImagePath);
 
         return back()->with('success', 'Produk Jersey diperbarui.');
     }

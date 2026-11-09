@@ -135,7 +135,7 @@
 
         'Tambah produk': 'เพิ่มสินค้า', 'Buat jenis jersey beserta ukuran awalnya.': 'สร้างประเภทเสื้อทีมพร้อมขนาดเริ่มต้น',
         'Produk aktif otomatis tampil di halaman penjualan.': 'สินค้าที่เปิดใช้งานจะแสดงในหน้าขายโดยอัตโนมัติ',
-        'Jenis model': 'ประเภทรุ่น', 'Harga jual (THB)': 'ราคาขาย (THB)', 'Foto produk': 'รูปสินค้า', 'Ganti foto': 'เปลี่ยนรูป',
+        'Jenis model': 'ประเภทรุ่น', 'Harga jual (THB)': 'ราคาขาย (THB)', 'Foto produk': 'รูปสินค้า', 'Ganti foto': 'เปลี่ยนรูป', 'Unduh foto': 'ดาวน์โหลดรูป',
         'Tampil di penjualan': 'แสดงในหน้าขาย', 'Disembunyikan': 'ซ่อนอยู่',
         'Ukuran, tambahan harga & stok': 'ขนาด ราคาเพิ่ม และสต็อก', '+ Harga': '+ ราคา', 'Stok': 'สต็อก',
         'Nama produk': 'ชื่อสินค้า', 'Jersey Dewasa': 'เสื้อทีมผู้ใหญ่', 'Harga dasar (THB)': 'ราคาพื้นฐาน (THB)',

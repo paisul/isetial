@@ -366,7 +366,12 @@ class FoundationTest extends TestCase
         $this->actingAs($admin)->patch(route('admin.sizes.update', $product->sizes->first()), ['stock' => 12, 'price_adjustment' => 5])->assertRedirect();
         $this->assertSame(12, $product->sizes->first()->fresh()->stock);
         $this->assertSame(5.0, (float) $product->sizes->first()->fresh()->price_adjustment);
-        $this->actingAs($admin)->put(route('admin.products.update', $product), ['name' => 'Jersey Anak', 'model' => 'Lelaki Pendek', 'description' => 'Khusus anak', 'price' => 120, 'is_active' => 0])->assertRedirect();
+        Storage::disk('public')->put('jersey/products/old.jpg', 'old photo');
+        $product->update(['image_path' => 'jersey/products/old.jpg']);
+        $this->actingAs($admin)->put(route('admin.products.update', $product), ['name' => 'Jersey Anak', 'model' => 'Lelaki Pendek', 'description' => 'Khusus anak', 'price' => 120, 'is_active' => 0, 'image' => UploadedFile::fake()->image('baru.jpg')])->assertRedirect();
+        Storage::disk('public')->assertMissing('jersey/products/old.jpg');
+        Storage::disk('public')->assertExists($product->fresh()->image_path);
+        $this->actingAs($admin)->get(route('admin.orders'))->assertOk()->assertSee('Unduh foto');
         $this->get(route('jersey.create'))->assertOk()->assertDontSee('Jersey Anak');
         $order = JerseyOrder::create(['order_number' => 'JRS-000010', 'customer_name' => 'A', 'address' => 'X', 'phone' => '081', 'gender' => 'male', 'total' => 120000]);
         $this->actingAs($admin)->patch(route('admin.orders.update', $order), ['production_status' => 'ready', 'notes' => 'Siap diambil'])->assertRedirect();

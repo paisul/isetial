@@ -1,0 +1,178 @@
+(() => {
+    'use strict';
+
+    const storageKey = 'isetial_locale';
+    const dictionary = {
+        'Beranda': 'หน้าแรก', 'Profil': 'ข้อมูล', 'Kegiatan': 'กิจกรรม', 'Pengumuman': 'ประกาศ',
+        'Tentang': 'เกี่ยวกับเรา', 'Pengurus': 'คณะกรรมการ', 'Masjid': 'มัสยิด', 'Pedoman': 'แนวทาง',
+        'Jersey': 'เสื้อทีม', 'Kontak': 'ติดต่อ', 'Portal Saya': 'พอร์ทัลของฉัน', 'Keluar': 'ออกจากระบบ',
+        'Login': 'เข้าสู่ระบบ', 'Buka navigasi': 'เปิดเมนู', 'Tutup navigasi': 'ปิดเมนู',
+        'Pemuda-Pemudi 5 Masjid': 'เยาวชนจาก 5 มัสยิด',
+        'Bersatu · Bertumbuh · Bermanfaat': 'รวมพลัง · เติบโต · สร้างประโยชน์',
+        'iSetial Wisdom menyatukan generasi muda masjid untuk belajar, berkarya, dan menghadirkan manfaat bagi masyarakat.': 'iSetial Wisdom รวมเยาวชนมัสยิดให้เรียนรู้ สร้างสรรค์ และทำประโยชน์เพื่อชุมชน',
+        'Pesan Jersey': 'สั่งเสื้อทีม', 'Cek Status Pesanan': 'ตรวจสอบสถานะคำสั่งซื้อ',
+        'Lima Masjid, Satu Gerakan': 'ห้ามัสยิด หนึ่งพลังขับเคลื่อน', 'Kunjungi portal': 'เยี่ยมชมพอร์ทัล',
+        'Kegiatan Terbaru': 'กิจกรรมล่าสุด', 'Kegiatan segera diumumkan.': 'กิจกรรมใหม่จะประกาศเร็ว ๆ นี้',
+        'Tentang iSetial Wisdom': 'เกี่ยวกับ iSetial Wisdom', 'Visi': 'วิสัยทัศน์', 'Misi': 'พันธกิจ',
+        'Wadah kolaborasi Pemuda-Pemudi dari lima masjid yang membangun generasi berilmu, berakhlak, dan bermanfaat.': 'พื้นที่ความร่วมมือของเยาวชนจากห้ามัสยิด เพื่อสร้างคนรุ่นใหม่ที่มีความรู้ คุณธรรม และเป็นประโยชน์',
+        'Menjadi gerakan pemuda masjid yang solid, bertumbuh, dan memberi dampak.': 'เป็นขบวนการเยาวชนมัสยิดที่เข้มแข็ง เติบโต และสร้างผลกระทบเชิงบวก',
+        'Menguatkan ukhuwah, mengembangkan kapasitas anggota, dan menyelenggarakan kegiatan sosial-keagamaan.': 'เสริมสร้างความสัมพันธ์ พัฒนาศักยภาพสมาชิก และจัดกิจกรรมเพื่อสังคมและศาสนา',
+        'Hubungi Kami': 'ติดต่อเรา', 'Untuk kolaborasi dan informasi kegiatan, hubungi pengurus iSetial Wisdom melalui kanal resmi organisasi.': 'สำหรับความร่วมมือและข้อมูลกิจกรรม โปรดติดต่อคณะกรรมการ iSetial Wisdom ผ่านช่องทางอย่างเป็นทางการ',
+        'Portal 5 Masjid': 'พอร์ทัล 5 มัสยิด', 'Portal Masjid': 'พอร์ทัลมัสยิด',
+        'Belum ada kegiatan.': 'ยังไม่มีกิจกรรม', 'Belum ada pengumuman.': 'ยังไม่มีประกาศ',
+        'Pedoman Organisasi': 'แนวทางองค์กร', 'Pedoman belum diterbitkan.': 'ยังไม่ได้เผยแพร่แนวทาง',
+        'Struktur Pengurus': 'โครงสร้างคณะกรรมการ', 'Susunan kepengurusan': 'รายชื่อคณะกรรมการ',
+        'Bidang-Bidang': 'ฝ่ายต่าง ๆ', 'Data pengurus sedang diperbarui': 'กำลังปรับปรุงข้อมูลคณะกรรมการ',
+        'Susunan periode aktif akan tampil di halaman ini.': 'รายชื่อคณะกรรมการวาระปัจจุบันจะแสดงในหน้านี้',
+        'Login Anggota': 'เข้าสู่ระบบสมาชิก', 'Kata sandi': 'รหัสผ่าน', 'Ingat saya': 'จดจำฉัน', 'Masuk': 'เข้าสู่ระบบ',
+
+        'Jersey Resmi iSetial Wisdom': 'เสื้อทีมอย่างเป็นทางการ iSetial Wisdom', 'Pilih jersey favoritmu': 'เลือกเสื้อทีมที่คุณชอบ',
+        'Tentukan model, ukuran, dan jumlah. Simpan ke keranjang atau langsung checkout.': 'เลือกรุ่น ขนาด และจำนวน แล้วเพิ่มลงตะกร้าหรือชำระเงินได้ทันที',
+        'Keranjang': 'ตะกร้า', 'Buka keranjang': 'เปิดตะกร้า', 'Pemesanan belum dibuka.': 'ยังไม่เปิดรับคำสั่งซื้อ',
+        'Pratinjau jersey': 'ตัวอย่างเสื้อทีม', 'Lihat detail foto jersey': 'ดูรายละเอียดรูปเสื้อทีม',
+        'Model sebelumnya': 'รุ่นก่อนหน้า', 'Model berikutnya': 'รุ่นถัดไป', 'Pilih model': 'เลือกรุ่น',
+        'Lengan pendek': 'แขนสั้น', 'Lengan panjang': 'แขนยาว', 'Ukuran': 'ขนาด', 'Jumlah': 'จำนวน',
+        'Stok tersedia': 'มีสินค้า', 'Stok habis': 'สินค้าหมด', 'Tambah ke Keranjang': 'เพิ่มลงตะกร้า',
+        'Beli Sekarang': 'ซื้อเลย', 'Menyimpan…': 'กำลังบันทึก…', 'Gagal menyimpan jersey.': 'บันทึกเสื้อทีมไม่สำเร็จ',
+        'Keranjang belanja': 'ตะกร้าสินค้า', 'Jersey pilihan Anda': 'เสื้อทีมที่คุณเลือก',
+        'Ubah jumlah atau hapus jersey sebelum melanjutkan pembayaran.': 'แก้ไขจำนวนหรือลบสินค้า ก่อนดำเนินการชำระเงิน',
+        '+ Tambah jersey lain': '+ เพิ่มเสื้อทีมอีก', 'Keranjang masih kosong': 'ตะกร้ายังว่าง',
+        'Pilih model jersey terlebih dahulu.': 'กรุณาเลือกรุ่นเสื้อทีมก่อน', 'Pilih jersey': 'เลือกเสื้อทีม', 'Hapus': 'ลบ',
+        'Ringkasan belanja': 'สรุปการสั่งซื้อ', 'Total item': 'จำนวนทั้งหมด', 'Total': 'รวม',
+        'Bayar penuh sekarang →': 'ชำระเต็มจำนวนตอนนี้ →', 'Bayar sekarang →': 'ชำระเงินตอนนี้ →',
+
+        'Selesaikan pesanan jersey': 'ดำเนินการสั่งเสื้อทีมให้เสร็จ',
+        'Lengkapi data warga terlebih dahulu, kemudian lanjutkan ke pembayaran.': 'กรอกข้อมูลผู้สั่งซื้อก่อน แล้วจึงดำเนินการชำระเงิน',
+        '1. Data warga': '1. ข้อมูลผู้สั่งซื้อ', '2. Bayar & unggah bukti': '2. ชำระเงินและอัปโหลดหลักฐาน',
+        'Data warga': 'ข้อมูลผู้สั่งซื้อ', 'Semua kolom wajib': 'ต้องกรอกทุกช่อง', 'Nama lengkap': 'ชื่อ-นามสกุล',
+        'Nomor HP/WhatsApp': 'หมายเลขโทรศัพท์/WhatsApp', 'Alamat lengkap': 'ที่อยู่โดยละเอียด',
+        'Detail jersey': 'รายละเอียดเสื้อทีม', 'Ringkasan pesanan': 'สรุปคำสั่งซื้อ',
+        'Lanjut ke Pembayaran →': 'ไปชำระเงิน →', 'Kembali ke keranjang': 'กลับไปที่ตะกร้า',
+        'Bayar melalui PromptPay': 'ชำระผ่าน PromptPay',
+        'Pindai QR; nomor tujuan dan nominal lengkap sudah terisi otomatis.': 'สแกน QR ระบบกรอกหมายเลขผู้รับและยอดเงินให้อัตโนมัติแล้ว',
+        'Total jersey': 'ยอดค่าเสื้อทีม', 'Kode unik': 'รหัสเฉพาะ', 'Bayar tepat sebesar': 'ชำระให้ตรงจำนวน',
+        'Jangan membulatkan nominal. Dua angka terakhir adalah kode pesanan.': 'ห้ามปัดเศษ สองหลักสุดท้ายคือรหัสคำสั่งซื้อ',
+        '📷 Unggah Bukti & Selesaikan Pesanan': '📷 อัปโหลดหลักฐานและเสร็จสิ้นคำสั่งซื้อ',
+        'Setelah foto dipilih, pesanan langsung dikirim.': 'เมื่อเลือกรูปแล้ว ระบบจะส่งคำสั่งซื้อทันที',
+        'Total pembayaran': 'ยอดชำระทั้งหมด',
+        'Setelah membayar, unggah bukti melalui tombol di samping. Pesanan akan langsung selesai.': 'หลังชำระเงิน ให้อัปโหลดหลักฐานด้วยปุ่มด้านข้าง แล้วคำสั่งซื้อจะเสร็จสมบูรณ์ทันที',
+        '← Kembali ke data warga': '← กลับไปยังข้อมูลผู้สั่งซื้อ', 'Mengirim pesanan…': 'กำลังส่งคำสั่งซื้อ…',
+        'Bukti pembayaran wajib diunggah.': 'กรุณาอัปโหลดหลักฐานการชำระเงิน', 'The proof field is required.': 'กรุณาอัปโหลดหลักฐานการชำระเงิน',
+
+        '← Pemesanan jersey': '← การสั่งเสื้อทีม', 'Status pesanan': 'สถานะคำสั่งซื้อ', 'Salin nomor': 'คัดลอกเลขที่',
+        'Tersalin ✓': 'คัดลอกแล้ว ✓', 'Total dibayar': 'ยอดชำระ', 'Pembayaran': 'การชำระเงิน', 'Produksi': 'การผลิต',
+        'Menunggu verifikasi': 'รอตรวจสอบ', 'Pembayaran diterima': 'รับชำระเงินแล้ว',
+        'Bukti pembayaran ditolak': 'หลักฐานการชำระเงินถูกปฏิเสธ', 'Belum ada pembayaran': 'ยังไม่มีการชำระเงิน',
+        'Bukti pembayaran penuh sudah terkirim dan sedang diperiksa admin.': 'ส่งหลักฐานการชำระเต็มจำนวนแล้ว และผู้ดูแลกำลังตรวจสอบ',
+        'Pembayaran penuh sudah diverifikasi. Tidak ada tagihan tambahan.': 'ตรวจสอบการชำระเต็มจำนวนแล้ว ไม่มีค่าใช้จ่ายเพิ่มเติม',
+        'Hubungi petugas untuk memperbaiki bukti pembayaran.': 'โปรดติดต่อเจ้าหน้าที่เพื่อแก้ไขหลักฐานการชำระเงิน',
+        'Hubungi petugas yang membuat pesanan ini.': 'โปรดติดต่อเจ้าหน้าที่ที่สร้างคำสั่งซื้อนี้',
+        'Pesanan diterima': 'รับคำสั่งซื้อแล้ว', 'Sedang diproduksi': 'กำลังผลิต', 'Siap diambil': 'พร้อมรับ',
+        'Sudah diserahkan': 'ส่งมอบแล้ว', 'Dibatalkan': 'ยกเลิกแล้ว', 'Diterima': 'รับแล้ว', 'Diproduksi': 'กำลังผลิต', 'Selesai': 'เสร็จสิ้น',
+        'Pesanan sudah masuk dan menunggu giliran produksi.': 'ได้รับคำสั่งซื้อแล้วและกำลังรอคิวผลิต',
+        'Jersey sedang disiapkan oleh tim produksi.': 'ทีมผลิตกำลังจัดเตรียมเสื้อทีม',
+        'Jersey sudah siap untuk diambil atau diserahkan.': 'เสื้อทีมพร้อมรับหรือส่งมอบแล้ว',
+        'Pesanan telah selesai dan diserahkan.': 'คำสั่งซื้อเสร็จสิ้นและส่งมอบแล้ว', 'Pesanan ini telah dibatalkan.': 'คำสั่งซื้อนี้ถูกยกเลิกแล้ว',
+        'Perjalanan pesanan': 'ความคืบหน้าคำสั่งซื้อ', 'Pesanan': 'คำสั่งซื้อ', 'Rincian jersey': 'รายละเอียดเสื้อทีม',
+        'Ringkasan pembayaran': 'สรุปการชำระเงิน', 'Data pemesan': 'ข้อมูลผู้สั่งซื้อ',
+        'Dilayani oleh petugas': 'ดูแลโดยเจ้าหน้าที่', 'Butuh bantuan?': 'ต้องการความช่วยเหลือ?',
+        'Sebutkan nomor pesanan': 'แจ้งเลขที่คำสั่งซื้อ', 'kepada petugas atau admin.': 'แก่เจ้าหน้าที่หรือผู้ดูแลระบบ',
+        'Cek pesanan jersey': 'ตรวจสอบคำสั่งซื้อเสื้อทีม', 'Masukkan nomor pesanan': 'กรอกเลขที่คำสั่งซื้อ', 'Cari pesanan': 'ค้นหาคำสั่งซื้อ'
+    };
+
+    const patterns = [
+        [/^Petugas (.+)$/u, 'เจ้าหน้าที่ $1'], [/^Periode (.+)$/u, 'วาระ $1'],
+        [/^(\d+) jersey$/u, '$1 ตัว'], [/^(\d+) buah$/u, '$1 ชิ้น'],
+        [/^Ukuran (.+)$/u, 'ขนาด $1'], [/^Sebutkan nomor pesanan (.+) kepada petugas atau admin\.$/u, 'แจ้งเลขที่คำสั่งซื้อ $1 แก่เจ้าหน้าที่หรือผู้ดูแลระบบ'],
+        [/^(.+) · Lengan pendek · Ukuran (.+)$/u, '$1 · แขนสั้น · ขนาด $2'],
+        [/^(.+) · Lengan panjang · Ukuran (.+)$/u, '$1 · แขนยาว · ขนาด $2'],
+        [/^(.+) · Ukuran (.+) · (\d+) buah$/u, '$1 · ขนาด $2 · $3 ชิ้น'],
+        [/^Buka keranjang, (\d+) item$/u, 'เปิดตะกร้า, $1 รายการ']
+    ];
+    const originalText = new WeakMap();
+    const originalAttributes = new WeakMap();
+    const originalTitle = document.title;
+    let locale = localStorage.getItem(storageKey) === 'th' ? 'th' : 'id';
+    let applying = false;
+
+    const translate = value => {
+        const trimmed = value.trim();
+        if (!trimmed) return value;
+        let result = dictionary[trimmed];
+        if (!result) {
+            for (const [pattern, replacement] of patterns) {
+                if (pattern.test(trimmed)) { result = trimmed.replace(pattern, replacement); break; }
+            }
+        }
+        return result ? value.replace(trimmed, result) : value;
+    };
+
+    const blocked = node => node.parentElement?.closest('script, style, noscript, [data-no-translate]');
+
+    function applyText(node, refresh = false) {
+        if (blocked(node)) return;
+        if (refresh && originalText.has(node)) {
+            const expected = locale === 'th' ? translate(originalText.get(node)) : originalText.get(node);
+            if (node.nodeValue === expected) return;
+        }
+        if (refresh || !originalText.has(node)) originalText.set(node, node.nodeValue);
+        const value = locale === 'th' ? translate(originalText.get(node)) : originalText.get(node);
+        if (node.nodeValue !== value) node.nodeValue = value;
+    }
+
+    function applyElement(element, refresh = false) {
+        if (!(element instanceof Element) || element.closest('[data-no-translate]')) return;
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) applyText(walker.currentNode, refresh);
+        const targets = [element, ...element.querySelectorAll('[placeholder], [aria-label], [title]')];
+        targets.forEach(target => {
+            const saved = originalAttributes.get(target) || {};
+            ['placeholder', 'aria-label', 'title'].forEach(attribute => {
+                if (!target.hasAttribute(attribute)) return;
+                if (refresh || saved[attribute] === undefined) saved[attribute] = target.getAttribute(attribute);
+                const value = locale === 'th' ? translate(saved[attribute]) : saved[attribute];
+                if (target.getAttribute(attribute) !== value) target.setAttribute(attribute, value);
+            });
+            originalAttributes.set(target, saved);
+        });
+    }
+
+    function updateButtons() {
+        document.querySelectorAll('[data-locale]').forEach(button => {
+            const active = button.dataset.locale === locale;
+            button.classList.toggle('bg-amber-400', active);
+            button.classList.toggle('text-emerald-950', active);
+            button.classList.toggle('text-emerald-100', !active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+    }
+
+    function applyPage() {
+        applying = true;
+        document.documentElement.lang = locale === 'th' ? 'th' : 'id';
+        document.title = locale === 'th' ? translate(originalTitle) : originalTitle;
+        applyElement(document.body);
+        updateButtons();
+        applying = false;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-locale]').forEach(button => button.addEventListener('click', () => {
+            locale = button.dataset.locale === 'th' ? 'th' : 'id';
+            localStorage.setItem(storageKey, locale);
+            applyPage();
+        }));
+        applyPage();
+        new MutationObserver(mutations => {
+            if (applying) return;
+            applying = true;
+            mutations.forEach(mutation => {
+                if (mutation.type === 'characterData') applyText(mutation.target, true);
+                mutation.addedNodes.forEach(node => node.nodeType === Node.TEXT_NODE ? applyText(node) : applyElement(node));
+            });
+            applying = false;
+        }).observe(document.body, {childList: true, characterData: true, subtree: true});
+    });
+
+    window.isetialTranslate = text => locale === 'th' ? translate(text) : text;
+})();

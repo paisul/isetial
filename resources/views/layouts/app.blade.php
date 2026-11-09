@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=20260919">
     <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}?v=20260919">
     @vite(['resources/css/app.css','resources/js/app.js'])
+    <script defer src="{{ asset('js/locale.js') }}?v=20261109"></script>
     <style>[x-cloak]{display:none}.prose p{margin:.75rem 0}</style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -40,6 +41,10 @@
             @else
                 <a href="{{ route('login') }}" class="font-bold text-amber-400">Login</a>
             @endauth
+            <div data-language-switcher data-no-translate class="mt-2 flex w-fit items-center gap-1 rounded-full border border-emerald-700 bg-emerald-900/70 p-1 md:mt-0" role="group" aria-label="Pilih bahasa / เลือกภาษา">
+                <button type="button" data-locale="id" class="rounded-full px-2.5 py-1 text-xs font-black transition">ID</button>
+                <button type="button" data-locale="th" class="rounded-full px-2.5 py-1 text-xs font-black transition">ไทย</button>
+            </div>
         </div>
     </div>
 </nav>

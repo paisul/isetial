@@ -30,7 +30,7 @@ class FoundationTest extends TestCase
     public function test_public_site_and_local_masjid_portal_work(): void
     {
         $this->seed();
-        $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan')->assertSee('nav-toggle')->assertSee('toggleMobileNav');
+        $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan')->assertSee('nav-toggle')->assertSee('toggleMobileNav')->assertSee('data-locale="th"', false)->assertSee('js/locale.js');
         $this->get('/m/darulhikmah')->assertOk()->assertSee('Darulhikmah');
         $this->get('/tentang')->assertOk()->assertSeeText('Tentang iSetial Wisdom')->assertDontSeeText('Struktur Pengurus');
         $this->get('/masjid')->assertOk()

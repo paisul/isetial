@@ -107,13 +107,31 @@ class JerseyController extends Controller
     public function addToCart(Request $r)
     {
         $item = $this->validatedSelection($r);
-        $line = (string) str()->uuid();
         $cart = $r->session()->get('jersey_cart', []);
-        $cart[$line] = $item;
-        $r->session()->put('jersey_cart', $cart);
+        $isBuyNow = $r->input('intent') === 'buy_now';
+        $line = $isBuyNow ? false : collect($cart)->search(fn ($existing) =>
+            (int) $existing['jersey_product_id'] === (int) $item['jersey_product_id']
+            && (int) $existing['jersey_size_id'] === (int) $item['jersey_size_id']
+            && $existing['model'] === $item['model']
+            && $existing['sleeve'] === $item['sleeve']
+        );
 
-        if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line]);
-        if ($r->input('intent') === 'buy_now') return redirect()->route('jersey.checkout', ['lines' => [$line]]);
+        if ($line !== false) {
+            $quantity = (int) $cart[$line]['quantity'] + (int) $item['quantity'];
+            $size = JerseySize::findOrFail($item['jersey_size_id']);
+            if ($quantity > 20 || ($size->stock !== null && $quantity > $size->stock)) {
+                throw ValidationException::withMessages(['quantity' => 'Jumlah total di keranjang melebihi batas atau stok yang tersedia.']);
+            }
+            $cart[$line]['quantity'] = $quantity;
+        } else {
+            $line = (string) str()->uuid();
+            $cart[$line] = $item;
+        }
+        $r->session()->put('jersey_cart', $cart);
+        $checkoutUrl = route('jersey.checkout', ['lines' => [$line]]);
+
+        if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line, 'checkout_url' => $checkoutUrl]);
+        if ($isBuyNow) return redirect($checkoutUrl);
 
         return redirect()->route('jersey.cart')->with('success', 'Jersey berhasil disimpan ke keranjang.');
     }

@@ -238,13 +238,22 @@ class FoundationTest extends TestCase
         $plusSize->update(['stock' => 2]);
         $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang')->assertSee('id="checkout-sheet"', false)->assertSee('Data pemesan')->assertSee('Panduan ukuran')->assertSee('5XL')->assertDontSee('Cek status pesanan sebelumnya');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
-        $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1])->assertJsonStructure(['line_id']);
+        $saved = $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1])->assertJsonStructure(['line_id', 'checkout_url']);
+        $saved->assertJson(['checkout_url' => route('jersey.checkout', ['lines' => [$saved->json('line_id')]])]);
         $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $plusSize->id, 'model' => 'Muslimah', 'sleeve' => 'long'])->assertRedirect(route('jersey.cart'));
+        $buyResponse = $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id, 'intent' => 'buy_now']);
         $cart = session('jersey_cart');
+        $this->assertCount(3, $cart);
+        $this->assertSame(3, collect($cart)->sum('quantity'));
+        $buyLine = array_key_last($cart);
+        $buyResponse->assertRedirect(route('jersey.checkout', ['lines' => [$buyLine]]));
+        $this->get($buyResponse->headers->get('Location'))->assertOk()->assertSee('Lelaki Pendek')->assertDontSee('Muslimah');
+        unset($cart[$buyLine]);
+        session(['jersey_cart' => $cart]);
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Bayar penuh sekarang')->assertSee(route('jersey.checkout'))->assertSee('fixed inset-x-0 bottom-0', false)->assertDontSee('Perbarui');
-        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Lanjut ke Pembayaran')->assertSee('Bayar melalui PromptPay')->assertSee('Unggah Bukti & Selesaikan Pesanan', false)->assertSee('pesanan langsung dikirim')->assertDontSee('Kirim Pesanan & Bukti', false)->assertSee('data-checkout-step="payment" class="hidden', false)->assertSee('Detail jersey')->assertSee('092-671-1380');
+        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Lanjut ke Pembayaran')->assertSee('Bayar melalui PromptPay')->assertSee('Unggah Bukti & Selesaikan Pesanan', false)->assertSee('pesanan langsung dikirim')->assertDontSee('Kirim Pesanan & Bukti', false)->assertSee('data-checkout-step="payment" class="hidden', false)->assertSee('Detail jersey')->assertSee('Lelaki Pendek')->assertSee('Muslimah')->assertSee('092-671-1380');
         session(['jersey_payment_code' => 42]);
         $this->post(route('jersey.store'), ['customer_name' => 'Pemesan Jersey', 'address' => 'Alamat', 'phone' => '08123456789', 'cart_line_ids' => $lineIds])
             ->assertSessionHasErrors(['proof' => 'Unggah bukti pembayaran setelah memindai QR PromptPay.']);

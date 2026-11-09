@@ -57,6 +57,10 @@ class JerseyController extends Controller
             'customer_name' => ['required', 'string', 'max:150'], 'address' => ['required', 'string', 'max:1000'], 'phone' => ['required', 'string', 'max:30'],
             'cart_line_ids' => ['required', 'array', 'min:1', 'max:20'], 'cart_line_ids.*' => ['required', 'string'],
             'proof' => ['required', 'image', 'max:4096'],
+        ], [
+            'proof.required' => 'Unggah bukti pembayaran setelah memindai QR PromptPay.',
+            'proof.image' => 'Bukti pembayaran harus berupa gambar.',
+            'proof.max' => 'Ukuran bukti pembayaran maksimal 4 MB.',
         ]);
         $lineIds = array_values(array_unique($d['cart_line_ids']));
         $items = $this->cartEntries($lineIds);

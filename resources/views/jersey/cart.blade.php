@@ -13,7 +13,7 @@
                 <article class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5"><div class="flex gap-4"><img src="{{asset('images/jersey/'.$image)}}" alt="{{$entry['item']['model']}}" class="h-24 w-24 shrink-0 rounded-2xl object-cover md:h-32 md:w-32"><div class="min-w-0 flex-1"><div class="flex items-start justify-between gap-3"><div><h2 class="font-black md:text-lg">{{$entry['item']['model']}}</h2><p class="mt-1 text-sm text-slate-500">{{$entry['product']->name}} · Ukuran {{$entry['size']->name}}</p><p class="mt-2 font-black text-emerald-900">฿{{number_format($entry['unit'],0,'.',',')}}</p></div><form method="post" action="{{route('jersey.cart.remove',$entry['line'])}}" onsubmit="return confirm('Hapus jersey ini dari keranjang?')">@csrf @method('DELETE')<button class="rounded-lg px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50">Hapus</button></form></div><form method="post" action="{{route('jersey.cart.update',$entry['line'])}}" data-quantity-form class="mt-4 flex items-center gap-3">@csrf @method('PATCH')<span class="text-sm font-bold">Jumlah</span><div class="flex overflow-hidden rounded-xl border border-slate-300 bg-white"><button type="button" data-quantity-minus class="h-10 w-10 text-xl hover:bg-slate-50" aria-label="Kurangi jumlah">−</button><input type="number" name="quantity" min="1" max="20" value="{{$entry['item']['quantity']}}" class="h-10 w-12 border-x border-slate-200 text-center font-black [appearance:textfield]" aria-label="Jumlah jersey"><button type="button" data-quantity-plus class="h-10 w-10 text-xl hover:bg-slate-50" aria-label="Tambah jumlah">+</button></div><span data-saving class="hidden text-xs font-bold text-emerald-700">Menyimpan…</span></form></div></div></article>
                 @endforeach
             </div>
-            <aside class="sticky top-24 hidden overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg lg:block"><div class="p-5"><p class="text-xs font-black uppercase tracking-[.14em] text-emerald-700">Ringkasan belanja</p><div class="mt-5 space-y-3 text-sm"><div class="flex justify-between"><span>Total item</span><b>{{$items->sum(fn($e)=>$e['item']['quantity'])}} jersey</b></div><div class="flex justify-between border-t pt-4 text-lg"><span class="font-bold">Total</span><b class="text-emerald-900">฿{{number_format($items->sum(fn($e)=>$e['unit']*$e['item']['quantity']),0,'.',',')}}</b></div></div><button type="button" data-open-checkout class="mt-6 w-full rounded-xl bg-amber-400 px-5 py-3.5 text-center font-black text-emerald-950 hover:bg-amber-300">Checkout sekarang →</button><p class="mt-3 text-center text-xs text-slate-400">Pembayaran dilakukan setelah pesanan dibuat.</p></div></aside>
+            <aside class="sticky top-24 hidden overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg lg:block"><div class="p-5"><p class="text-xs font-black uppercase tracking-[.14em] text-emerald-700">Ringkasan belanja</p><div class="mt-5 space-y-3 text-sm"><div class="flex justify-between"><span>Total item</span><b>{{$items->sum(fn($e)=>$e['item']['quantity'])}} jersey</b></div><div class="flex justify-between border-t pt-4 text-lg"><span class="font-bold">Total</span><b class="text-emerald-900">฿{{number_format($items->sum(fn($e)=>$e['unit']*$e['item']['quantity']),0,'.',',')}}</b></div></div><a href="{{route('jersey.checkout')}}" class="mt-6 block w-full rounded-xl bg-amber-400 px-5 py-3.5 text-center font-black text-emerald-950 hover:bg-amber-300">Bayar penuh sekarang →</a><p class="mt-3 text-center text-xs text-slate-400">Pindai QR dan unggah bukti pada langkah berikutnya.</p></div></aside>
         </div>
         <div class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-8px_24px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
             <div class="mx-auto flex max-w-6xl items-center gap-3">
@@ -21,7 +21,7 @@
                     <p class="text-xs font-bold text-slate-500">Total {{$items->sum(fn($e)=>$e['item']['quantity'])}} jersey</p>
                     <p class="truncate text-lg font-black text-emerald-950">฿{{number_format($items->sum(fn($e)=>$e['unit']*$e['item']['quantity']),0,'.',',')}}</p>
                 </div>
-                <button type="button" data-open-checkout class="shrink-0 rounded-xl bg-amber-400 px-5 py-3.5 text-center font-black text-emerald-950 hover:bg-amber-300">Checkout sekarang →</button>
+                <a href="{{route('jersey.checkout')}}" class="shrink-0 rounded-xl bg-amber-400 px-5 py-3.5 text-center font-black text-emerald-950 hover:bg-amber-300">Bayar sekarang →</a>
             </div>
         </div>
         <div id="checkout-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
@@ -55,7 +55,7 @@ const closeCheckout=()=>{checkoutCard.classList.add('translate-y-full');document
 document.querySelectorAll('[data-open-checkout]').forEach(button=>button.addEventListener('click',openCheckout));
 document.querySelectorAll('[data-close-checkout]').forEach(button=>button.addEventListener('click',closeCheckout));
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!checkoutSheet.classList.contains('hidden'))closeCheckout()});
-@if($errors->any()) openCheckout(); @endif
+
 </script>
 @endif
 @endsection

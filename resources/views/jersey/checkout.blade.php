@@ -10,7 +10,6 @@
     <div><p class="text-xs font-black uppercase tracking-[.16em] text-emerald-700">Petugas {{$agent?->name ?? 'Umum'}}</p><h1 class="mt-1 text-3xl font-black md:text-4xl">Selesaikan pesanan jersey</h1><p class="mt-2 text-slate-500">Lengkapi data warga terlebih dahulu, kemudian lanjutkan ke pembayaran.</p></div>
     <div class="mt-6 grid grid-cols-2 overflow-hidden rounded-2xl border bg-white text-center text-sm font-black"><div data-step-label="details" class="bg-emerald-800 px-3 py-3 text-white">1. Data warga</div><div data-step-label="payment" class="px-3 py-3 text-slate-400">2. Bayar & unggah bukti</div></div>
     <form id="checkout-form" method="post" enctype="multipart/form-data" action="{{route('jersey.store')}}" class="mt-6">@csrf
-        <input type="hidden" name="purchase_source" value="{{$purchaseSource}}">
         @foreach($items as $entry)<input type="hidden" name="cart_line_ids[]" value="{{$entry['line']}}">@endforeach
 
         <div data-checkout-step="details" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">

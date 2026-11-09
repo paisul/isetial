@@ -56,7 +56,6 @@ class JerseyController extends Controller
         $d = $r->validate([
             'customer_name' => ['required', 'string', 'max:150'], 'address' => ['required', 'string', 'max:1000'], 'phone' => ['required', 'string', 'max:30'],
             'cart_line_ids' => ['required', 'array', 'min:1', 'max:20'], 'cart_line_ids.*' => ['required', 'string'],
-            'purchase_source' => ['nullable', 'in:cart,buy_now'],
             'proof' => ['required', 'image', 'max:4096'],
         ], [
             'proof.required' => 'Unggah bukti pembayaran setelah memindai QR PromptPay.',
@@ -64,8 +63,7 @@ class JerseyController extends Controller
             'proof.max' => 'Ukuran bukti pembayaran maksimal 4 MB.',
         ]);
         $lineIds = array_values(array_unique($d['cart_line_ids']));
-        $purchaseSource = $d['purchase_source'] ?? 'cart';
-        $items = $purchaseSource === 'buy_now' ? $this->buyNowEntries($lineIds) : $this->cartEntries($lineIds);
+        $items = $this->cartEntries($lineIds);
         if ($items->count() !== count($lineIds)) throw ValidationException::withMessages(['cart_line_ids' => 'Sebagian item keranjang tidak tersedia. Silakan periksa kembali keranjang.']);
         $agent = $this->currentAgent();
         $paymentCode = $r->session()->pull('jersey_payment_code');
@@ -97,10 +95,9 @@ class JerseyController extends Controller
             return $order;
         });
 
-        $sessionKey = $purchaseSource === 'buy_now' ? 'jersey_buy_now' : 'jersey_cart';
-        $selections = $r->session()->get($sessionKey, []);
-        foreach ($lineIds as $lineId) unset($selections[$lineId]);
-        $r->session()->put($sessionKey, $selections);
+        $cart = $r->session()->get('jersey_cart', []);
+        foreach ($lineIds as $lineId) unset($cart[$lineId]);
+        $r->session()->put('jersey_cart', $cart);
 
         $r->session()->put('jersey_access.'.$order->order_number, true);
 
@@ -112,15 +109,6 @@ class JerseyController extends Controller
         $item = $this->validatedSelection($r);
         $cart = $r->session()->get('jersey_cart', []);
         $isBuyNow = $r->input('intent') === 'buy_now';
-        if ($isBuyNow) {
-            $line = (string) str()->uuid();
-            $r->session()->put('jersey_buy_now', [$line => $item]);
-            $checkoutUrl = route('jersey.checkout', ['buy_now' => $line]);
-            $payload = ['message' => 'Jersey siap dibayar.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line, 'checkout_url' => $checkoutUrl];
-
-            return $r->expectsJson() ? response()->json($payload) : redirect($checkoutUrl);
-        }
-
         $line = collect($cart)->search(fn ($existing) =>
             (int) $existing['jersey_product_id'] === (int) $item['jersey_product_id']
             && (int) $existing['jersey_size_id'] === (int) $item['jersey_size_id']
@@ -140,7 +128,7 @@ class JerseyController extends Controller
             $cart[$line] = $item;
         }
         $r->session()->put('jersey_cart', $cart);
-        $checkoutUrl = route('jersey.checkout', ['lines' => [$line]]);
+        $checkoutUrl = $isBuyNow ? route('jersey.cart') : route('jersey.checkout', ['lines' => [$line]]);
 
         if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line, 'checkout_url' => $checkoutUrl]);
 
@@ -175,11 +163,9 @@ class JerseyController extends Controller
 
     public function checkout(Request $r)
     {
-        $buyNowLine = $r->query('buy_now');
-        $purchaseSource = is_string($buyNowLine) && $buyNowLine !== '' ? 'buy_now' : 'cart';
-        $requested = $purchaseSource === 'buy_now' ? [$buyNowLine] : $r->query('lines');
+        $requested = $r->query('lines');
         $lineIds = is_array($requested) ? array_values(array_unique(array_map('strval', $requested))) : null;
-        $items = $purchaseSource === 'buy_now' ? $this->buyNowEntries($lineIds) : $this->cartEntries($lineIds);
+        $items = $this->cartEntries($lineIds);
         if ($items->isEmpty()) return redirect()->route('jersey.cart')->withErrors(['cart' => 'Keranjang masih kosong.']);
 
         $agent = $this->currentAgent();
@@ -193,7 +179,7 @@ class JerseyController extends Controller
         $payableTotal = $items->sum(fn ($entry) => $entry['unit'] * $entry['item']['quantity']) + ($paymentCode / 100);
         $qrUrl = URL::temporarySignedRoute('jersey.promptpay.qr', now()->addMinutes(30), ['amount' => number_format($payableTotal, 2, '.', '')]);
 
-        return view('jersey.checkout', compact('items', 'agent', 'paymentCode', 'qrUrl', 'purchaseSource'));
+        return view('jersey.checkout', compact('items', 'agent', 'paymentCode', 'qrUrl'));
     }
 
     public function lookup()
@@ -245,21 +231,11 @@ class JerseyController extends Controller
 
     private function cartEntries(?array $lineIds = null)
     {
-        return $this->selectionEntries('jersey_cart', $lineIds);
-    }
+        $cart = session('jersey_cart', []);
+        if ($lineIds !== null) $cart = array_intersect_key($cart, array_flip($lineIds));
+        $products = JerseyProduct::with('sizes')->where('is_active', true)->whereIn('id', collect($cart)->pluck('jersey_product_id'))->get()->keyBy('id');
 
-    private function buyNowEntries(?array $lineIds = null)
-    {
-        return $this->selectionEntries('jersey_buy_now', $lineIds);
-    }
-
-    private function selectionEntries(string $sessionKey, ?array $lineIds = null)
-    {
-        $selections = session($sessionKey, []);
-        if ($lineIds !== null) $selections = array_intersect_key($selections, array_flip($lineIds));
-        $products = JerseyProduct::with('sizes')->where('is_active', true)->whereIn('id', collect($selections)->pluck('jersey_product_id'))->get()->keyBy('id');
-
-        return collect($selections)->map(function (array $item, string $line) use ($products) {
+        return collect($cart)->map(function (array $item, string $line) use ($products) {
             $product = $products->get($item['jersey_product_id']);
             $size = $product?->sizes->firstWhere('id', $item['jersey_size_id']);
             if (! $product || ! $size) return null;

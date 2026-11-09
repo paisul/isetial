@@ -244,12 +244,11 @@ class FoundationTest extends TestCase
         $buyResponse = $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id, 'intent' => 'buy_now'])->assertOk();
         $cart = session('jersey_cart');
         $this->assertCount(2, $cart);
-        $this->assertSame(2, collect($cart)->sum('quantity'));
+        $this->assertSame(3, collect($cart)->sum('quantity'));
         $buyLine = $buyResponse->json('line_id');
-        $buyUrl = route('jersey.checkout', ['buy_now' => $buyLine]);
-        $buyResponse->assertJson(['cart_count' => 2, 'checkout_url' => $buyUrl]);
-        $this->get($buyUrl)->assertOk()->assertSee('Lelaki Pendek')->assertDontSee('Muslimah');
-        $this->assertSame($cart, session('jersey_cart'));
+        $this->assertSame($saved->json('line_id'), $buyLine);
+        $buyResponse->assertJson(['cart_count' => 3, 'checkout_url' => route('jersey.cart')]);
+        $this->get(route('jersey.cart'))->assertOk()->assertSee('Lelaki Pendek')->assertSee('Muslimah')->assertSee('Bayar penuh sekarang');
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Bayar penuh sekarang')->assertSee(route('jersey.checkout'))->assertSee('fixed inset-x-0 bottom-0', false)->assertDontSee('Perbarui');

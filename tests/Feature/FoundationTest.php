@@ -238,8 +238,8 @@ class FoundationTest extends TestCase
         $plusSize->update(['stock' => 2]);
         $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang')->assertSee('id="checkout-sheet"', false)->assertSee('Data pemesan')->assertSee('Panduan ukuran')->assertSee('5XL')->assertDontSee('Cek status pesanan sebelumnya');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
-        $saved = $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1])->assertJsonStructure(['line_id', 'checkout_url']);
-        $saved->assertJson(['checkout_url' => route('jersey.checkout', ['lines' => [$saved->json('line_id')]])]);
+        $saved = $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1])->assertJsonStructure(['line_id', 'next_url']);
+        $saved->assertJson(['next_url' => route('jersey.checkout', ['lines' => [$saved->json('line_id')]])]);
         $this->post(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $plusSize->id, 'model' => 'Muslimah', 'sleeve' => 'long'])->assertRedirect(route('jersey.cart'));
         $buyResponse = $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id, 'intent' => 'buy_now'])->assertOk();
         $cart = session('jersey_cart');
@@ -247,7 +247,7 @@ class FoundationTest extends TestCase
         $this->assertSame(3, collect($cart)->sum('quantity'));
         $buyLine = $buyResponse->json('line_id');
         $this->assertSame($saved->json('line_id'), $buyLine);
-        $buyResponse->assertJson(['cart_count' => 3, 'checkout_url' => route('jersey.cart')]);
+        $buyResponse->assertJson(['cart_count' => 3, 'next_url' => route('jersey.cart')]);
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Lelaki Pendek')->assertSee('Muslimah')->assertSee('Bayar penuh sekarang');
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();

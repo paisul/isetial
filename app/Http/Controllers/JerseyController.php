@@ -31,7 +31,9 @@ class JerseyController extends Controller
 
     public function create()
     {
-        return view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get(), 'agent' => $this->currentAgent()]);
+        return response()
+            ->view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get(), 'agent' => $this->currentAgent()])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function agentEntry(Request $request, JerseyAgent $agent)
@@ -128,9 +130,9 @@ class JerseyController extends Controller
             $cart[$line] = $item;
         }
         $r->session()->put('jersey_cart', $cart);
-        $checkoutUrl = $isBuyNow ? route('jersey.cart') : route('jersey.checkout', ['lines' => [$line]]);
+        $nextUrl = $isBuyNow ? route('jersey.cart') : route('jersey.checkout', ['lines' => [$line]]);
 
-        if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line, 'checkout_url' => $checkoutUrl]);
+        if ($r->expectsJson()) return response()->json(['message' => 'Jersey disimpan ke keranjang.', 'cart_count' => collect($cart)->sum('quantity'), 'line_id' => $line, 'next_url' => $nextUrl]);
 
         return redirect()->route('jersey.cart')->with('success', 'Jersey berhasil disimpan ke keranjang.');
     }

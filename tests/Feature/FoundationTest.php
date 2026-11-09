@@ -269,7 +269,7 @@ class FoundationTest extends TestCase
         $this->assertSame($order->payable_total, (float) $order->payments->first()->amount);
         $this->assertSame(2, $product->sizes->first()->fresh()->stock);
         $this->assertSame(1, $plusSize->fresh()->stock);
-        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Progres pembayaran')->assertSee('Masih sisa');
+        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Menunggu verifikasi')->assertSee('Pesanan diterima')->assertSee('Perjalanan pesanan')->assertSee('Rincian jersey')->assertSee('Ringkasan pembayaran')->assertSee('Petugas Kampung')->assertDontSee('Progres pembayaran')->assertDontSee('Masih sisa');
         $payment = JerseyPayment::first();
         $this->assertSame('pending', $payment->status);
         Storage::disk('local')->assertExists($payment->proof_path);

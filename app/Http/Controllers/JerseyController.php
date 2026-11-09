@@ -185,7 +185,7 @@ class JerseyController extends Controller
     public function show(Request $r, string $order)
     {
         abort_unless($r->session()->get('jersey_access.'.$order), 403);
-        $record = JerseyOrder::with(['items.product', 'items.size', 'payments' => fn ($q) => $q->select('id', 'jersey_order_id', 'amount', 'status', 'created_at')])->where('order_number', $order)->firstOrFail();
+        $record = JerseyOrder::with(['agent', 'items.product', 'items.size', 'payments' => fn ($q) => $q->select('id', 'jersey_order_id', 'amount', 'status', 'created_at')])->where('order_number', $order)->firstOrFail();
 
         return view('jersey.show', ['order' => $record]);
     }

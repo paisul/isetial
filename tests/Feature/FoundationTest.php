@@ -376,7 +376,9 @@ class FoundationTest extends TestCase
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
         JerseyOrder::create(['order_number' => 'JRS-SEARCH-1', 'customer_name' => 'Ahmad Firdaus', 'address' => 'X', 'phone' => '08123', 'total' => 100000, 'production_status' => 'ready']);
-        JerseyOrder::create(['order_number' => 'JRS-SEARCH-2', 'customer_name' => 'Budi', 'address' => 'Y', 'phone' => '08999', 'total' => 100000, 'production_status' => 'queued']);
+        $queuedOrder = JerseyOrder::create(['order_number' => 'JRS-SEARCH-2', 'customer_name' => 'Budi', 'address' => 'Y', 'phone' => '08999', 'total' => 100000, 'production_status' => 'queued']);
+        $product = JerseyProduct::with('sizes')->firstOrFail();
+        $queuedOrder->items()->create(['jersey_product_id' => $product->id, 'jersey_size_id' => $product->sizes->first()->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 3, 'unit_price' => 199, 'subtotal' => 597]);
 
         $this->actingAs($admin)->get(route('admin.orders', ['q' => 'Ahmad', 'production' => 'ready']))
             ->assertOk()
@@ -390,6 +392,10 @@ class FoundationTest extends TestCase
             ->assertSee('Lelaki panjang')
             ->assertSee('Lelaki pendek')
             ->assertSee('Muslimah')
+            ->assertSee('Data Baju')
+            ->assertSee('Data Baju untuk Produksi')
+            ->assertSee('Total dibuat')
+            ->assertSee('data-admin-panel="production-data"', false)
             ->assertSee('Menampilkan 1 pesanan');
     }
 }

@@ -46,10 +46,38 @@ class JerseyAdminController extends Controller
             ->groupBy('jersey_order_items.model')
             ->pluck('quantity', 'model');
 
+        $productionRows = DB::table('jersey_order_items')
+            ->join('jersey_orders', 'jersey_orders.id', '=', 'jersey_order_items.jersey_order_id')
+            ->join('jersey_products', 'jersey_products.id', '=', 'jersey_order_items.jersey_product_id')
+            ->join('jersey_sizes', 'jersey_sizes.id', '=', 'jersey_order_items.jersey_size_id')
+            ->whereNull('jersey_orders.deleted_at')
+            ->whereIn('jersey_orders.production_status', ['queued', 'processing'])
+            ->select(
+                'jersey_products.name as product_name',
+                'jersey_order_items.model',
+                'jersey_order_items.sleeve',
+                'jersey_sizes.name as size_name',
+                'jersey_sizes.id as size_id',
+                DB::raw("SUM(CASE WHEN jersey_orders.production_status = 'queued' THEN jersey_order_items.quantity ELSE 0 END) as queued_quantity"),
+                DB::raw("SUM(CASE WHEN jersey_orders.production_status = 'processing' THEN jersey_order_items.quantity ELSE 0 END) as processing_quantity"),
+                DB::raw('SUM(jersey_order_items.quantity) as total_quantity')
+            )
+            ->groupBy('jersey_products.name', 'jersey_order_items.model', 'jersey_order_items.sleeve', 'jersey_sizes.name', 'jersey_sizes.id')
+            ->orderBy('jersey_order_items.model')
+            ->orderBy('jersey_sizes.id')
+            ->get();
+
         return view('admin.orders', [
             'orders' => $orders->paginate(20)->withQueryString(),
             'products' => JerseyProduct::with('sizes')->withTrashed()->get(),
             'agents' => JerseyAgent::withCount('orders')->orderBy('name')->get(),
+            'productionRows' => $productionRows,
+            'productionSummary' => [
+                'total' => (int) $productionRows->sum('total_quantity'),
+                'queued' => (int) $productionRows->sum('queued_quantity'),
+                'processing' => (int) $productionRows->sum('processing_quantity'),
+                'models' => $productionRows->groupBy('model')->map(fn ($rows) => (int) $rows->sum('total_quantity')),
+            ],
             'summary' => [
                 'all' => JerseyOrder::count(),
                 'pendingPayments' => JerseyPayment::where('status', 'pending')->count(),

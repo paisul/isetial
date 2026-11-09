@@ -114,9 +114,12 @@ class JerseyAdminController extends Controller
 
     public function storeProduct(Request $request)
     {
-        $data = $request->validate(['name' => ['required', 'max:150'], 'description' => ['nullable', 'max:2000'], 'price' => ['required', 'numeric', 'min:0'], 'sizes' => ['required', 'string', 'max:300']]);
+        $data = $request->validate(['name' => ['required', 'max:150'], 'model' => ['required', 'in:Lelaki Pendek,Lelaki Panjang,Muslimah'], 'description' => ['nullable', 'max:2000'], 'price' => ['required', 'numeric', 'min:0'], 'sizes' => ['required', 'string', 'max:300'], 'image' => ['nullable', 'image', 'max:4096']]);
         DB::transaction(function () use ($data) {
-            $product = JerseyProduct::create([...collect($data)->only(['name', 'description', 'price'])->all(), 'is_active' => true]);
+            $sleeve = $data['model'] === 'Lelaki Pendek' ? 'short' : 'long';
+            $defaults = ['Lelaki Pendek' => 'images/jersey/model-pria-pendek-v2.jpg', 'Lelaki Panjang' => 'images/jersey/model-pria-panjang-v3.jpg', 'Muslimah' => 'images/jersey/model-muslimah-v3.jpg'];
+            $imagePath = isset($data['image']) ? $data['image']->store('jersey/products', 'public') : $defaults[$data['model']];
+            $product = JerseyProduct::create([...collect($data)->only(['name', 'model', 'description', 'price'])->all(), 'sleeve' => $sleeve, 'image_path' => $imagePath, 'is_active' => true]);
             collect(explode(',', $data['sizes']))->map(fn ($size) => strtoupper(trim($size)))->filter()->unique()->each(fn ($size) => JerseySize::create(['jersey_product_id' => $product->id, 'name' => $size]));
         });
 
@@ -125,7 +128,11 @@ class JerseyAdminController extends Controller
 
     public function updateProduct(Request $request, JerseyProduct $product)
     {
-        $product->update($request->validate(['name' => ['required', 'max:150'], 'description' => ['nullable', 'max:2000'], 'price' => ['required', 'numeric', 'min:0'], 'is_active' => ['required', 'boolean']]));
+        $data = $request->validate(['name' => ['required', 'max:150'], 'model' => ['required', 'in:Lelaki Pendek,Lelaki Panjang,Muslimah'], 'description' => ['nullable', 'max:2000'], 'price' => ['required', 'numeric', 'min:0'], 'is_active' => ['required', 'boolean'], 'image' => ['nullable', 'image', 'max:4096']]);
+        $data['sleeve'] = $data['model'] === 'Lelaki Pendek' ? 'short' : 'long';
+        if (isset($data['image'])) $data['image_path'] = $data['image']->store('jersey/products', 'public');
+        unset($data['image']);
+        $product->update($data);
 
         return back()->with('success', 'Produk Jersey diperbarui.');
     }
@@ -140,7 +147,7 @@ class JerseyAdminController extends Controller
 
     public function updateSize(Request $request, JerseySize $size)
     {
-        $size->update($request->validate(['stock' => ['nullable', 'integer', 'min:0', 'max:100000']]));
+        $size->update($request->validate(['stock' => ['nullable', 'integer', 'min:0', 'max:100000'], 'price_adjustment' => ['required', 'numeric', 'min:0']]));
 
         return back()->with('success', 'Stok ukuran diperbarui.');
     }

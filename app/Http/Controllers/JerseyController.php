@@ -20,15 +20,6 @@ use Illuminate\Validation\ValidationException;
 
 class JerseyController extends Controller
 {
-    private const MODEL_PRICES = [
-        'Lelaki Pendek' => 199,
-        'Lelaki Panjang' => 249,
-        'Muslimah' => 299,
-    ];
-
-    private const PLUS_SIZE_SURCHARGE = 20;
-    private const PLUS_SIZES = ['3XL', '4XL', '5XL'];
-
     public function create()
     {
         return response()
@@ -220,13 +211,12 @@ class JerseyController extends Controller
             'jersey_product_id' => ['required', 'integer', 'exists:jersey_products,id'], 'jersey_size_id' => ['required', 'integer', 'exists:jersey_sizes,id'],
             'model' => ['required', 'in:Lelaki Pendek,Lelaki Panjang,Muslimah'], 'sleeve' => ['required', 'in:short,long'], 'quantity' => ['required', 'integer', 'min:1', 'max:20'],
         ]);
-        $models = ['Lelaki Pendek' => 'short', 'Lelaki Panjang' => 'long', 'Muslimah' => 'long'];
         $product = JerseyProduct::with('sizes')->where('is_active', true)->find($item['jersey_product_id']);
         if (! $product) throw ValidationException::withMessages(['jersey_product_id' => 'Produk jersey tidak tersedia.']);
         if (! $product->sizes->contains('id', $item['jersey_size_id'])) throw ValidationException::withMessages(['jersey_size_id' => 'Ukuran tidak sesuai dengan produk yang dipilih.']);
         $size = $product->sizes->firstWhere('id', $item['jersey_size_id']);
         if ($size->stock !== null && $size->stock < $item['quantity']) throw ValidationException::withMessages(['quantity' => 'Jumlah melebihi stok yang tersedia.']);
-        if ($models[$item['model']] !== $item['sleeve']) throw ValidationException::withMessages(['model' => 'Model dan jenis lengan tidak sesuai.']);
+        if ($product->model !== $item['model'] || $product->sleeve !== $item['sleeve']) throw ValidationException::withMessages(['model' => 'Model tidak sesuai dengan produk yang dipilih.']);
 
         return $item;
     }
@@ -241,9 +231,7 @@ class JerseyController extends Controller
             $product = $products->get($item['jersey_product_id']);
             $size = $product?->sizes->firstWhere('id', $item['jersey_size_id']);
             if (! $product || ! $size) return null;
-            $basePrice = self::MODEL_PRICES[$item['model']] ?? null;
-            if ($basePrice === null) return null;
-            $unit = $basePrice + (in_array($size->name, self::PLUS_SIZES, true) ? self::PLUS_SIZE_SURCHARGE : 0);
+            $unit = (float) $product->price + (float) $size->price_adjustment;
 
             return compact('line', 'item', 'product', 'size', 'unit');
         })->filter()->values();

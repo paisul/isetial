@@ -332,6 +332,7 @@ class FoundationTest extends TestCase
             ->assertSeeInOrder(['Pesanan', 'Pemesan', 'Item', 'Pembayaran', 'Produksi', 'Tanggal', 'Aksi'])
             ->assertSee('JRS-SEARCH-1')
             ->assertDontSee('JRS-SEARCH-2')
+            ->assertDontSee('Sisa ฿')
             ->assertSee('Menampilkan 1 pesanan');
     }
 }

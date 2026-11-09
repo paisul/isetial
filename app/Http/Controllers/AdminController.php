@@ -7,8 +7,10 @@ use App\Models\JerseyOrder;
 use App\Models\Masjid;
 use App\Models\Membership;
 use App\Models\Setting;
+use App\Services\PromptPay;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 class AdminController extends Controller
 {
@@ -45,29 +47,20 @@ class AdminController extends Controller
     public function settings()
     {
         return view('admin.settings', [
-            'qr' => Setting::valueOf('payment_qr'),
             'promptPayNumber' => Setting::valueOf('promptpay_number', '092-671-1380'),
         ]);
     }
 
-    public function updateSettings(Request $r)
+    public function updateSettings(Request $r, PromptPay $promptPay)
     {
         $d = $r->validate([
             'promptpay_number' => ['required', 'string', 'max:30', 'regex:/^[0-9+()\-\s]+$/'],
-            'payment_qr' => ['nullable', 'image', 'max:4096'],
         ]);
         $number = trim($d['promptpay_number']);
-        $currentNumber = Setting::valueOf('promptpay_number', '092-671-1380');
-        if ($number !== $currentNumber && ! isset($d['payment_qr'])) {
-            throw ValidationException::withMessages(['payment_qr' => 'Unggah QR baru yang sesuai saat mengganti nomor PromptPay.']);
-        }
-        if (isset($d['payment_qr'])) {
-            $old = Setting::valueOf('payment_qr');
-            if ($old) {
-                \Storage::disk('public')->delete($old);
-            }
-            $path = $d['payment_qr']->store('settings', 'public');
-            Setting::updateOrCreate(['masjid_id' => null, 'key' => 'payment_qr'], ['value' => $path]);
+        try {
+            $promptPay->payload($number, 1);
+        } catch (InvalidArgumentException $exception) {
+            throw ValidationException::withMessages(['promptpay_number' => $exception->getMessage()]);
         }
         Setting::updateOrCreate(['masjid_id' => null, 'key' => 'promptpay_number'], ['value' => $number]);
 

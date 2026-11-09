@@ -19,6 +19,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Database\Seeders\OrganizationStructure2026Seeder;
 use Tests\TestCase;
 
@@ -87,7 +88,6 @@ class FoundationTest extends TestCase
 
     public function test_structure_admin_can_build_and_publish_dynamic_hierarchy(): void
     {
-        Storage::fake('public');
         $this->seed();
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
@@ -300,9 +300,11 @@ class FoundationTest extends TestCase
         $this->seed();
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
-        $this->actingAs($admin)->post(route('admin.settings.update'), ['promptpay_number' => '099-123-4567', 'payment_qr' => UploadedFile::fake()->image('qr.png')])->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.settings.update'), ['promptpay_number' => '099-123-4567'])->assertRedirect();
         $this->assertSame('099-123-4567', Setting::valueOf('promptpay_number'));
         $this->actingAs($admin)->get(route('admin.settings'))->assertOk()->assertSee('099-123-4567')->assertSee('Pengaturan Pembayaran');
+        $qrUrl = URL::temporarySignedRoute('jersey.promptpay.qr', now()->addMinute(), ['amount' => '717.42']);
+        $this->get($qrUrl)->assertOk()->assertHeader('Content-Type', 'image/svg+xml')->assertSee('<svg', false);
         $this->actingAs($admin)->post(route('admin.products.store'), ['name' => 'Jersey Anak', 'description' => 'Khusus anak', 'price' => 120000, 'sizes' => 'S, M'])->assertRedirect();
         $product = JerseyProduct::where('name', 'Jersey Anak')->firstOrFail();
         $this->assertCount(2, $product->sizes);

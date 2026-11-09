@@ -27,6 +27,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth')->name('logout');
 Route::prefix('jersey')->name('jersey.')->group(function () {
     Route::get('/petugas/{agent:token}', [JerseyController::class, 'agentEntry'])->name('agent.entry');
+    Route::get('/promptpay-qr', [JerseyController::class, 'promptPayQr'])->middleware('signed')->name('promptpay.qr');
     Route::get('/pesan', [JerseyController::class, 'create'])->name('create');
     Route::post('/pesan', [JerseyController::class, 'store'])->middleware('throttle:10,1')->name('store');
     Route::post('/keranjang', [JerseyController::class, 'addToCart'])->name('cart.add');

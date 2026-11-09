@@ -8,9 +8,14 @@ use App\Models\JerseyOrderItem;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
 use App\Models\JerseySize;
+use App\Models\Setting;
+use App\Services\PromptPay;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 
 class JerseyController extends Controller
@@ -35,6 +40,15 @@ class JerseyController extends Controller
         $request->session()->put('jersey_agent_id', $agent->id);
 
         return redirect()->route('jersey.create')->with('success', "Link petugas {$agent->name} aktif. Pesanan akan tercatat atas nama petugas ini.");
+    }
+
+    public function promptPayQr(Request $request, PromptPay $promptPay)
+    {
+        $data = $request->validate(['amount' => ['required', 'numeric', 'min:0.01', 'max:99999999.99']]);
+        $payload = $promptPay->payload(Setting::valueOf('promptpay_number', '092-671-1380'), (float) $data['amount']);
+        $result = (new Builder(writer: new SvgWriter(), data: $payload, size: 360, margin: 12))->build();
+
+        return response($result->getString(), 200, ['Content-Type' => $result->getMimeType(), 'Cache-Control' => 'private, max-age=1800']);
     }
 
     public function store(Request $r)
@@ -143,7 +157,10 @@ class JerseyController extends Controller
             $paymentCode = $availableCodes ? $availableCodes[array_rand($availableCodes)] : random_int(0, 99);
             $r->session()->put('jersey_payment_code', $paymentCode);
         }
-        return view('jersey.checkout', ['items' => $items, 'agent' => $agent, 'paymentCode' => $paymentCode]);
+        $payableTotal = $items->sum(fn ($entry) => $entry['unit'] * $entry['item']['quantity']) + ($paymentCode / 100);
+        $qrUrl = URL::temporarySignedRoute('jersey.promptpay.qr', now()->addMinutes(30), ['amount' => number_format($payableTotal, 2, '.', '')]);
+
+        return view('jersey.checkout', compact('items', 'agent', 'paymentCode', 'qrUrl'));
     }
 
     public function lookup()

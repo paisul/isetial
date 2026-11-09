@@ -333,6 +333,8 @@ class FoundationTest extends TestCase
             ->assertSee('JRS-SEARCH-1')
             ->assertDontSee('JRS-SEARCH-2')
             ->assertDontSee('Sisa ฿')
+            ->assertDontSee('<option value="unpaid"', false)
+            ->assertDontSee('<option value="partial"', false)
             ->assertSee('Menampilkan 1 pesanan');
     }
 }

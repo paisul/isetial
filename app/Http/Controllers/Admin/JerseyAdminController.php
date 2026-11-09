@@ -19,7 +19,7 @@ class JerseyAdminController extends Controller
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:100'],
             'production' => ['nullable', 'in:active,queued,processing,ready,delivered,cancelled'],
-            'payment' => ['nullable', 'in:pending,unpaid,partial,paid'],
+            'payment' => ['nullable', 'in:pending,paid'],
         ]);
 
         $orders = JerseyOrder::query()
@@ -34,10 +34,6 @@ class JerseyAdminController extends Controller
             ->when(($filters['production'] ?? null) === 'active', fn ($query) => $query->whereIn('production_status', ['queued', 'processing']))
             ->when(($filters['production'] ?? null) && $filters['production'] !== 'active', fn ($query) => $query->where('production_status', $filters['production']))
             ->when(($filters['payment'] ?? null) === 'pending', fn ($query) => $query->whereHas('payments', fn ($payments) => $payments->where('status', 'pending')))
-            ->when(($filters['payment'] ?? null) === 'unpaid', fn ($query) => $query->whereDoesntHave('payments', fn ($payments) => $payments->where('status', 'verified')))
-            ->when(($filters['payment'] ?? null) === 'partial', fn ($query) => $query
-                ->whereHas('payments', fn ($payments) => $payments->where('status', 'verified'))
-                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) < (jersey_orders.total + coalesce(jersey_orders.payment_code, 0) / 100)', ['verified']))
             ->when(($filters['payment'] ?? null) === 'paid', fn ($query) => $query
                 ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) >= (jersey_orders.total + coalesce(jersey_orders.payment_code, 0) / 100)', ['verified']))
             ->latest();

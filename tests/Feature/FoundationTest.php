@@ -252,7 +252,7 @@ class FoundationTest extends TestCase
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Bayar penuh sekarang')->assertSee(route('jersey.checkout'))->assertSee('fixed inset-x-0 bottom-0', false)->assertDontSee('Perbarui');
-        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Lanjut ke Pembayaran')->assertSee('Bayar melalui PromptPay')->assertSee('Unggah Bukti & Selesaikan Pesanan', false)->assertSee('pesanan langsung dikirim')->assertDontSee('Kirim Pesanan & Bukti', false)->assertSee('data-checkout-step="payment" class="hidden', false)->assertSee('Detail jersey')->assertSee('Lelaki Pendek')->assertSee('Muslimah')->assertSee('092-671-1380');
+        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data pemesan')->assertSee('Lanjut ke Pembayaran')->assertSee('Lanjut Bayar')->assertSee('Bayar melalui PromptPay')->assertSee('Unggah Bukti & Selesaikan Pesanan', false)->assertSee('data-mobile-action="payment"', false)->assertSee('fixed inset-x-0 bottom-0', false)->assertDontSee('Kirim Pesanan & Bukti', false)->assertSee('data-checkout-step="payment" class="hidden', false)->assertSee('Detail jersey')->assertSee('Lelaki Pendek')->assertSee('Muslimah')->assertSee('092-671-1380');
         session(['jersey_payment_code' => 42]);
         $this->post(route('jersey.store'), ['customer_name' => 'Pemesan Jersey', 'address' => 'Alamat', 'phone' => '08123456789', 'cart_line_ids' => $lineIds])
             ->assertSessionHasErrors(['proof' => 'Unggah bukti pembayaran setelah memindai QR PromptPay.']);

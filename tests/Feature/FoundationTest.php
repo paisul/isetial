@@ -285,8 +285,26 @@ class FoundationTest extends TestCase
             $this->actingAs($admin)->post(route('admin.agents.store'), ['name' => "Petugas {$number}", 'phone' => "080{$number}"])->assertRedirect();
         }
         $this->assertSame(10, JerseyAgent::count());
+        $this->assertNotNull(JerseyAgent::first()->management_token);
         $this->actingAs($admin)->post(route('admin.agents.store'), ['name' => 'Petugas 11'])->assertStatus(422);
-        $this->actingAs($admin)->get(route('admin.orders'))->assertOk()->assertSee('Petugas (10/10)')->assertSee('Petugas 1');
+        $this->actingAs($admin)->get(route('admin.orders'))->assertOk()->assertSee('Petugas (10/10)')->assertSee('Petugas 1')->assertSee('Link dashboard pribadi petugas');
+    }
+
+    public function test_agent_dashboard_only_exposes_orders_and_proofs_from_its_private_link(): void
+    {
+        Storage::fake('local');
+        $agent = JerseyAgent::create(['name' => 'Petugas Satu', 'token' => str_repeat('a', 48), 'management_token' => str_repeat('m', 48)]);
+        $other = JerseyAgent::create(['name' => 'Petugas Dua', 'token' => str_repeat('b', 48), 'management_token' => str_repeat('n', 48)]);
+        $order = JerseyOrder::create(['jersey_agent_id' => $agent->id, 'order_number' => 'JRS-AGENT-1', 'customer_name' => 'Warga Satu', 'address' => 'Kampung A', 'phone' => '0811', 'total' => 199]);
+        $otherOrder = JerseyOrder::create(['jersey_agent_id' => $other->id, 'order_number' => 'JRS-AGENT-2', 'customer_name' => 'Warga Rahasia', 'address' => 'Kampung B', 'phone' => '0822', 'total' => 299]);
+        Storage::disk('local')->put('jersey-proofs/one.jpg', 'proof-one');
+        Storage::disk('local')->put('jersey-proofs/two.jpg', 'proof-two');
+        $payment = JerseyPayment::create(['jersey_order_id' => $order->id, 'amount' => 199, 'proof_path' => 'jersey-proofs/one.jpg', 'status' => 'verified']);
+        $otherPayment = JerseyPayment::create(['jersey_order_id' => $otherOrder->id, 'amount' => 299, 'proof_path' => 'jersey-proofs/two.jpg', 'status' => 'verified']);
+
+        $this->get(route('jersey.agent.dashboard', $agent->management_token))->assertOk()->assertSee('Petugas Satu')->assertSee('Warga Satu')->assertDontSee('Warga Rahasia')->assertSee('฿199.00');
+        $this->get(route('jersey.agent.proof', [$agent->management_token, $payment]))->assertOk();
+        $this->get(route('jersey.agent.proof', [$agent->management_token, $otherPayment]))->assertNotFound();
     }
 
     public function test_order_page_requires_successful_phone_lookup_session(): void

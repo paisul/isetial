@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\StructureAdminController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JerseyController;
+use App\Http\Controllers\JerseyAgentDashboardController;
 use App\Http\Controllers\MasjidPortalController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PublicController;
@@ -27,6 +28,8 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth')->name('logout');
 Route::prefix('jersey')->name('jersey.')->group(function () {
     Route::get('/petugas/{agent:token}', [JerseyController::class, 'agentEntry'])->name('agent.entry');
+    Route::get('/petugas-kelola/{agent:management_token}', [JerseyAgentDashboardController::class, 'index'])->middleware('throttle:60,1')->name('agent.dashboard');
+    Route::get('/petugas-kelola/{agent:management_token}/bukti/{payment}', [JerseyAgentDashboardController::class, 'proof'])->middleware('throttle:60,1')->name('agent.proof');
     Route::get('/promptpay-qr', [JerseyController::class, 'promptPayQr'])->middleware('signed')->name('promptpay.qr');
     Route::get('/pesan', [JerseyController::class, 'create'])->name('create');
     Route::post('/pesan', [JerseyController::class, 'store'])->middleware('throttle:10,1')->name('store');

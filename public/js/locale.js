@@ -108,6 +108,12 @@
         'Buat link petugas': 'สร้างลิงก์เจ้าหน้าที่', 'Tanpa nomor HP': 'ไม่มีหมายเลขโทรศัพท์',
         'Aktif': 'ใช้งาน', 'Nonaktif': 'ปิดใช้งาน', 'Salin': 'คัดลอก', 'Simpan petugas': 'บันทึกเจ้าหน้าที่',
         'Belum ada petugas.': 'ยังไม่มีเจ้าหน้าที่',
+        'Dashboard Petugas Jersey': 'แดชบอร์ดเจ้าหน้าที่เสื้อทีม', 'Dashboard petugas jersey': 'แดชบอร์ดเจ้าหน้าที่เสื้อทีม',
+        'Hanya menampilkan pesanan yang masuk melalui link Anda.': 'แสดงเฉพาะคำสั่งซื้อที่มาจากลิงก์ของคุณ',
+        'Buka halaman pemesanan': 'เปิดหน้าสั่งซื้อ', 'Dana diterima': 'ยอดเงินที่ได้รับ',
+        'Bukti ditolak': 'หลักฐานถูกปฏิเสธ',
+        'Belum ada pesanan melalui link Anda atau filter tidak cocok.': 'ยังไม่มีคำสั่งซื้อผ่านลิงก์ของคุณ หรือตัวกรองไม่ตรงกัน',
+        'Link pemesanan untuk warga': 'ลิงก์สั่งซื้อสำหรับลูกค้า', 'Link dashboard pribadi petugas': 'ลิงก์แดชบอร์ดส่วนตัวของเจ้าหน้าที่',
 
         'Tambah produk': 'เพิ่มสินค้า', 'Buat jenis jersey beserta ukuran awalnya.': 'สร้างประเภทเสื้อทีมพร้อมขนาดเริ่มต้น',
         'Nama produk': 'ชื่อสินค้า', 'Jersey Dewasa': 'เสื้อทีมผู้ใหญ่', 'Harga dasar (THB)': 'ราคาพื้นฐาน (THB)',

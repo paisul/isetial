@@ -68,7 +68,7 @@ class JerseyAdminController extends Controller
     {
         abort_if(JerseyAgent::count() >= 10, 422, 'Maksimal 10 petugas pemesanan.');
         $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'phone' => ['nullable', 'string', 'max:30']]);
-        JerseyAgent::create([...$data, 'token' => bin2hex(random_bytes(24))]);
+        JerseyAgent::create([...$data, 'token' => bin2hex(random_bytes(24)), 'management_token' => bin2hex(random_bytes(24))]);
 
         return back()->with('success', 'Petugas dan link pemesanan berhasil dibuat.');
     }

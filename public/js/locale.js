@@ -198,7 +198,7 @@
         const targets = [element, ...element.querySelectorAll('[placeholder], [aria-label], [title]')];
         targets.forEach(target => {
             const saved = originalAttributes.get(target) || {};
-            ['placeholder', 'aria-label', 'title'].forEach(attribute => {
+            ['placeholder', 'aria-label', 'title', 'alt'].forEach(attribute => {
                 if (!target.hasAttribute(attribute)) return;
                 if (refresh || saved[attribute] === undefined) saved[attribute] = target.getAttribute(attribute);
                 const value = locale === 'th' ? translate(saved[attribute]) : saved[attribute];

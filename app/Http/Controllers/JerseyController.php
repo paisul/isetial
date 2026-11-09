@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JerseyOrder;
+use App\Models\JerseyAgent;
 use App\Models\JerseyOrderItem;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
@@ -25,7 +26,15 @@ class JerseyController extends Controller
 
     public function create()
     {
-        return view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get()]);
+        return view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get(), 'agent' => $this->currentAgent()]);
+    }
+
+    public function agentEntry(Request $request, JerseyAgent $agent)
+    {
+        abort_unless($agent->is_active, 404);
+        $request->session()->put('jersey_agent_id', $agent->id);
+
+        return redirect()->route('jersey.create')->with('success', "Link petugas {$agent->name} aktif. Pesanan akan tercatat atas nama petugas ini.");
     }
 
     public function store(Request $r)
@@ -33,11 +42,15 @@ class JerseyController extends Controller
         $d = $r->validate([
             'customer_name' => ['required', 'string', 'max:150'], 'address' => ['required', 'string', 'max:1000'], 'phone' => ['required', 'string', 'max:30'],
             'cart_line_ids' => ['required', 'array', 'min:1', 'max:20'], 'cart_line_ids.*' => ['required', 'string'],
+            'proof' => ['required', 'image', 'max:4096'],
         ]);
         $lineIds = array_values(array_unique($d['cart_line_ids']));
         $items = $this->cartEntries($lineIds);
         if ($items->count() !== count($lineIds)) throw ValidationException::withMessages(['cart_line_ids' => 'Sebagian item keranjang tidak tersedia. Silakan periksa kembali keranjang.']);
-        $order = DB::transaction(function () use ($d, $items) {
+        $agent = $this->currentAgent();
+        abort_unless($agent, 403, 'Gunakan link petugas yang diberikan admin untuk membuat pesanan.');
+        $proofPath = $r->file('proof')->store('jersey-proofs', 'local');
+        $order = DB::transaction(function () use ($d, $items, $agent, $proofPath) {
             foreach ($items as $entry) {
                 $size = JerseySize::lockForUpdate()->findOrFail($entry['size']->id);
                 if ($size->stock !== null && $size->stock < $entry['item']['quantity']) {
@@ -46,6 +59,7 @@ class JerseyController extends Controller
             }
             $order = JerseyOrder::create([
                 ...collect($d)->only(['customer_name', 'address', 'phone'])->all(),
+                'jersey_agent_id' => $agent->id,
                 'order_number' => 'TEMP-'.str()->uuid(),
                 'total' => $items->sum(fn ($entry) => $entry['unit'] * $entry['item']['quantity']),
             ]);
@@ -55,6 +69,7 @@ class JerseyController extends Controller
                 JerseyOrderItem::create(['jersey_order_id' => $order->id, 'jersey_product_id' => $entry['product']->id, 'jersey_size_id' => $entry['size']->id, 'model' => $item['model'], 'sleeve' => $item['sleeve'], 'quantity' => $item['quantity'], 'unit_price' => $entry['unit'], 'subtotal' => $entry['unit'] * $item['quantity']]);
                 if ($entry['size']->stock !== null) JerseySize::whereKey($entry['size']->id)->decrement('stock', $item['quantity']);
             }
+            JerseyPayment::create(['jersey_order_id' => $order->id, 'amount' => $order->total, 'proof_path' => $proofPath]);
 
             return $order;
         });
@@ -65,7 +80,7 @@ class JerseyController extends Controller
 
         $r->session()->put('jersey_access.'.$order->order_number, true);
 
-        return redirect()->route('jersey.show', $order->order_number)->with('success', 'Pesanan berhasil dibuat. Simpan nomor pesanan Anda.');
+        return redirect()->route('jersey.show', $order->order_number)->with('success', 'Pesanan dan bukti pembayaran penuh berhasil dikirim. Simpan nomor pesanan Anda.');
     }
 
     public function addToCart(Request $r)
@@ -84,7 +99,7 @@ class JerseyController extends Controller
 
     public function cart()
     {
-        return view('jersey.cart', ['items' => $this->cartEntries()]);
+        return view('jersey.cart', ['items' => $this->cartEntries(), 'agent' => $this->currentAgent()]);
     }
 
     public function updateCart(Request $r, string $line)
@@ -115,7 +130,9 @@ class JerseyController extends Controller
         $items = $this->cartEntries($lineIds);
         if ($items->isEmpty()) return redirect()->route('jersey.cart')->withErrors(['cart' => 'Keranjang masih kosong.']);
 
-        return view('jersey.checkout', ['items' => $items]);
+        $agent = $this->currentAgent();
+        if (! $agent) return redirect()->route('jersey.create')->withErrors(['agent' => 'Pemesanan hanya dapat dilakukan melalui link petugas resmi.']);
+        return view('jersey.checkout', ['items' => $items, 'agent' => $agent]);
     }
 
     public function lookup()
@@ -139,17 +156,6 @@ class JerseyController extends Controller
         $record = JerseyOrder::with(['items.product', 'items.size', 'payments' => fn ($q) => $q->select('id', 'jersey_order_id', 'amount', 'status', 'created_at')])->where('order_number', $order)->firstOrFail();
 
         return view('jersey.show', ['order' => $record]);
-    }
-
-    public function payment(Request $r, string $order)
-    {
-        abort_unless($r->session()->get('jersey_access.'.$order), 403);
-        $record = JerseyOrder::where('order_number', $order)->firstOrFail();
-        $d = $r->validate(['amount' => 'required|numeric|min:1|max:'.$record->balance, 'proof' => 'required|image|max:4096']);
-        $path = $r->file('proof')->store('jersey-proofs', 'local');
-        JerseyPayment::create(['jersey_order_id' => $record->id, 'amount' => $d['amount'], 'proof_path' => $path]);
-
-        return back()->with('success', 'Bukti pembayaran diterima dan menunggu verifikasi.');
     }
 
     public function proof(JerseyPayment $payment)
@@ -192,5 +198,11 @@ class JerseyController extends Controller
 
             return compact('line', 'item', 'product', 'size', 'unit');
         })->filter()->values();
+    }
+
+    private function currentAgent(): ?JerseyAgent
+    {
+        $id = session('jersey_agent_id');
+        return $id ? JerseyAgent::whereKey($id)->where('is_active', true)->first() : null;
     }
 }

@@ -26,6 +26,7 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth')->name('logout');
 Route::prefix('jersey')->name('jersey.')->group(function () {
+    Route::get('/petugas/{agent:token}', [JerseyController::class, 'agentEntry'])->name('agent.entry');
     Route::get('/pesan', [JerseyController::class, 'create'])->name('create');
     Route::post('/pesan', [JerseyController::class, 'store'])->middleware('throttle:10,1')->name('store');
     Route::post('/keranjang', [JerseyController::class, 'addToCart'])->name('cart.add');
@@ -36,7 +37,6 @@ Route::prefix('jersey')->name('jersey.')->group(function () {
     Route::get('/cek', [JerseyController::class, 'lookup'])->name('lookup');
     Route::post('/cek', [JerseyController::class, 'find'])->middleware('throttle:8,1')->name('find');
     Route::get('/pesanan/{order}', [JerseyController::class, 'show'])->name('show');
-    Route::post('/pesanan/{order}/bayar', [JerseyController::class, 'payment'])->middleware('throttle:5,1')->name('payment');
 });
 Route::middleware('auth')->group(function () {
     Route::get('/saya', [MemberController::class, 'dashboard'])->name('member.dashboard');
@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/masjid/{masjid}', [AdminController::class, 'updateMasjid'])->name('admin.masjid.update');
     Route::get('/admin/jersey', [JerseyAdminController::class, 'index'])->middleware('role:super-admin,bendahara')->name('admin.orders');
     Route::post('/admin/jersey/produk', [JerseyAdminController::class, 'storeProduct'])->middleware('role:super-admin')->name('admin.products.store');
+    Route::post('/admin/jersey/petugas', [JerseyAdminController::class, 'storeAgent'])->middleware('role:super-admin,bendahara')->name('admin.agents.store');
+    Route::patch('/admin/jersey/petugas/{agent}', [JerseyAdminController::class, 'updateAgent'])->middleware('role:super-admin,bendahara')->name('admin.agents.update');
     Route::put('/admin/jersey/produk/{product}', [JerseyAdminController::class, 'updateProduct'])->middleware('role:super-admin')->name('admin.products.update');
     Route::post('/admin/jersey/produk/{product}/ukuran', [JerseyAdminController::class, 'storeSize'])->middleware('role:super-admin')->name('admin.sizes.store');
     Route::patch('/admin/jersey/ukuran/{size}', [JerseyAdminController::class, 'updateSize'])->middleware('role:super-admin')->name('admin.sizes.update');

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Activity;
 use App\Models\JerseyOrder;
+use App\Models\JerseyAgent;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
 use App\Models\Masjid;
@@ -228,6 +229,8 @@ class FoundationTest extends TestCase
         Storage::fake('local');
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
+        $agent = JerseyAgent::create(['name' => 'Petugas Kampung', 'phone' => '0811', 'token' => str_repeat('a', 48)]);
+        $this->get(route('jersey.agent.entry', $agent->token))->assertRedirect(route('jersey.create'));
         $plusSize = $product->sizes->firstWhere('name', '5XL');
         $product->sizes->first()->update(['stock' => 4]);
         $plusSize->update(['stock' => 2]);
@@ -239,10 +242,11 @@ class FoundationTest extends TestCase
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Checkout sekarang')->assertSee('fixed inset-x-0 bottom-0', false)->assertSee('id="checkout-sheet"', false)->assertSee('Data pemesan')->assertDontSee('Perbarui');
-        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data pemesan')->assertSee('Detail jersey');
+        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Pembayaran penuh')->assertSee('Detail jersey');
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
             'phone' => '08123456789', 'cart_line_ids' => $lineIds,
+            'proof' => UploadedFile::fake()->image('bayar-penuh.jpg'),
         ]);
         $response->assertSessionHasNoErrors();
         $order = JerseyOrder::with('items')->first();
@@ -255,13 +259,27 @@ class FoundationTest extends TestCase
         $this->assertSame(717.0, (float) $order->total);
         $this->assertSame([199.0, 319.0], $order->items->pluck('unit_price')->map(fn ($price) => (float) $price)->all());
         $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
+        $this->assertSame($agent->id, $order->jersey_agent_id);
+        $this->assertSame((float) $order->total, (float) $order->payments->first()->amount);
         $this->assertSame(2, $product->sizes->first()->fresh()->stock);
         $this->assertSame(1, $plusSize->fresh()->stock);
-        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Kirim bukti pembayaran')->assertSee('Progres pembayaran')->assertSee('Masih sisa')->assertSee('092-671-1380')->assertSee('promptpay-0926711380.png')->assertSee('min="1"', false);
-        $this->post(route('jersey.payment', $order->order_number), ['amount' => 500, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertRedirect();
+        $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Progres pembayaran')->assertSee('Masih sisa');
         $payment = JerseyPayment::first();
         $this->assertSame('pending', $payment->status);
         Storage::disk('local')->assertExists($payment->proof_path);
+    }
+
+    public function test_admin_manages_up_to_ten_jersey_agents(): void
+    {
+        $this->seed();
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        foreach (range(1, 10) as $number) {
+            $this->actingAs($admin)->post(route('admin.agents.store'), ['name' => "Petugas {$number}", 'phone' => "080{$number}"])->assertRedirect();
+        }
+        $this->assertSame(10, JerseyAgent::count());
+        $this->actingAs($admin)->post(route('admin.agents.store'), ['name' => 'Petugas 11'])->assertStatus(422);
+        $this->actingAs($admin)->get(route('admin.orders'))->assertOk()->assertSee('Petugas (10/10)')->assertSee('Petugas 1');
     }
 
     public function test_order_page_requires_successful_phone_lookup_session(): void

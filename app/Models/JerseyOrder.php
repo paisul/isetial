@@ -26,6 +26,11 @@ class JerseyOrder extends Model
         return $this->hasMany(JerseyPayment::class);
     }
 
+    public function agent()
+    {
+        return $this->belongsTo(JerseyAgent::class, 'jersey_agent_id');
+    }
+
     public function getPaidAmountAttribute()
     {
         return $this->payments->where('status', 'verified')->sum('amount');

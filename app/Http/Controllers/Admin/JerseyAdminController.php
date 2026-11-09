@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JerseyOrder;
+use App\Models\JerseyAgent;
 use App\Models\JerseyPayment;
 use App\Models\JerseyProduct;
 use App\Models\JerseySize;
@@ -22,7 +23,7 @@ class JerseyAdminController extends Controller
         ]);
 
         $orders = JerseyOrder::query()
-            ->with(['items.product', 'items.size', 'payments'])
+            ->with(['agent', 'items.product', 'items.size', 'payments'])
             ->when($filters['q'] ?? null, function ($query, $search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('order_number', 'like', "%{$search}%")
@@ -44,6 +45,7 @@ class JerseyAdminController extends Controller
         return view('admin.orders', [
             'orders' => $orders->paginate(20)->withQueryString(),
             'products' => JerseyProduct::with('sizes')->withTrashed()->get(),
+            'agents' => JerseyAgent::withCount('orders')->orderBy('name')->get(),
             'summary' => [
                 'all' => JerseyOrder::count(),
                 'pendingPayments' => JerseyPayment::where('status', 'pending')->count(),
@@ -52,6 +54,26 @@ class JerseyAdminController extends Controller
             ],
             'filters' => $filters,
         ]);
+    }
+
+    public function storeAgent(Request $request)
+    {
+        abort_if(JerseyAgent::count() >= 10, 422, 'Maksimal 10 petugas pemesanan.');
+        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'phone' => ['nullable', 'string', 'max:30']]);
+        JerseyAgent::create([...$data, 'token' => bin2hex(random_bytes(24))]);
+
+        return back()->with('success', 'Petugas dan link pemesanan berhasil dibuat.');
+    }
+
+    public function updateAgent(Request $request, JerseyAgent $agent)
+    {
+        $agent->update($request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'is_active' => ['required', 'boolean'],
+        ]));
+
+        return back()->with('success', 'Data petugas diperbarui.');
     }
 
     public function storeProduct(Request $request)

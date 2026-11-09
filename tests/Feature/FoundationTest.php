@@ -14,6 +14,7 @@ use App\Models\Person;
 use App\Models\Position;
 use App\Models\PositionAssignment;
 use App\Models\Role;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -242,7 +243,7 @@ class FoundationTest extends TestCase
         $lineIds = array_keys($cart);
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Checkout sekarang')->assertSee('fixed inset-x-0 bottom-0', false)->assertSee('id="checkout-sheet"', false)->assertSee('Data pemesan')->assertDontSee('Perbarui');
-        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Pembayaran penuh')->assertSee('Detail jersey');
+        $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Pembayaran penuh')->assertSee('Detail jersey')->assertSee('092-671-1380');
         session(['jersey_payment_code' => 42]);
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
@@ -295,9 +296,13 @@ class FoundationTest extends TestCase
 
     public function test_super_admin_can_configure_jersey_product_and_production_status(): void
     {
+        Storage::fake('public');
         $this->seed();
         $admin = User::factory()->create();
         $admin->roles()->attach(Role::whereSlug('super-admin')->first()->id);
+        $this->actingAs($admin)->post(route('admin.settings.update'), ['promptpay_number' => '099-123-4567', 'payment_qr' => UploadedFile::fake()->image('qr.png')])->assertRedirect();
+        $this->assertSame('099-123-4567', Setting::valueOf('promptpay_number'));
+        $this->actingAs($admin)->get(route('admin.settings'))->assertOk()->assertSee('099-123-4567')->assertSee('Pengaturan Pembayaran');
         $this->actingAs($admin)->post(route('admin.products.store'), ['name' => 'Jersey Anak', 'description' => 'Khusus anak', 'price' => 120000, 'sizes' => 'S, M'])->assertRedirect();
         $product = JerseyProduct::where('name', 'Jersey Anak')->firstOrFail();
         $this->assertCount(2, $product->sizes);

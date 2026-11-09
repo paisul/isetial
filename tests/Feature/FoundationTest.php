@@ -335,6 +335,10 @@ class FoundationTest extends TestCase
             ->assertDontSee('Sisa ฿')
             ->assertDontSee('<option value="unpaid"', false)
             ->assertDontSee('<option value="partial"', false)
+            ->assertSee('Total dana diterima')
+            ->assertSee('Lelaki panjang')
+            ->assertSee('Lelaki pendek')
+            ->assertSee('Muslimah')
             ->assertSee('Menampilkan 1 pesanan');
     }
 }

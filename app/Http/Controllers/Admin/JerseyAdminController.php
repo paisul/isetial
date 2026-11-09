@@ -38,6 +38,14 @@ class JerseyAdminController extends Controller
                 ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) >= (jersey_orders.total + coalesce(jersey_orders.payment_code, 0) / 100)', ['verified']))
             ->latest();
 
+        $modelTotals = DB::table('jersey_order_items')
+            ->join('jersey_orders', 'jersey_orders.id', '=', 'jersey_order_items.jersey_order_id')
+            ->whereNull('jersey_orders.deleted_at')
+            ->where('jersey_orders.production_status', '!=', 'cancelled')
+            ->select('jersey_order_items.model', DB::raw('SUM(jersey_order_items.quantity) as quantity'))
+            ->groupBy('jersey_order_items.model')
+            ->pluck('quantity', 'model');
+
         return view('admin.orders', [
             'orders' => $orders->paginate(20)->withQueryString(),
             'products' => JerseyProduct::with('sizes')->withTrashed()->get(),
@@ -47,6 +55,10 @@ class JerseyAdminController extends Controller
                 'pendingPayments' => JerseyPayment::where('status', 'pending')->count(),
                 'inProduction' => JerseyOrder::whereIn('production_status', ['queued', 'processing'])->count(),
                 'ready' => JerseyOrder::where('production_status', 'ready')->count(),
+                'funds' => JerseyPayment::where('status', 'verified')->whereHas('order')->sum('amount'),
+                'maleLong' => (int) ($modelTotals['Lelaki Panjang'] ?? 0),
+                'maleShort' => (int) ($modelTotals['Lelaki Pendek'] ?? 0),
+                'muslimah' => (int) ($modelTotals['Muslimah'] ?? 0),
             ],
             'filters' => $filters,
         ]);

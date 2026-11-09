@@ -77,17 +77,69 @@
         'Ringkasan pembayaran': 'สรุปการชำระเงิน', 'Data pemesan': 'ข้อมูลผู้สั่งซื้อ',
         'Dilayani oleh petugas': 'ดูแลโดยเจ้าหน้าที่', 'Butuh bantuan?': 'ต้องการความช่วยเหลือ?',
         'Sebutkan nomor pesanan': 'แจ้งเลขที่คำสั่งซื้อ', 'kepada petugas atau admin.': 'แก่เจ้าหน้าที่หรือผู้ดูแลระบบ',
-        'Cek pesanan jersey': 'ตรวจสอบคำสั่งซื้อเสื้อทีม', 'Masukkan nomor pesanan': 'กรอกเลขที่คำสั่งซื้อ', 'Cari pesanan': 'ค้นหาคำสั่งซื้อ'
+        'Cek pesanan jersey': 'ตรวจสอบคำสั่งซื้อเสื้อทีม', 'Masukkan nomor pesanan': 'กรอกเลขที่คำสั่งซื้อ', 'Cari pesanan': 'ค้นหาคำสั่งซื้อ',
+
+        'Kelola Jersey': 'จัดการเสื้อทีม', 'Administrasi penjualan': 'การจัดการการขาย',
+        'Periksa pembayaran, pantau produksi, dan atur stok dari satu tempat.': 'ตรวจสอบการชำระเงิน ติดตามการผลิต และจัดการสต็อกได้ในที่เดียว',
+        '← Dashboard': '← แดชบอร์ด', 'Semua pesanan': 'คำสั่งซื้อทั้งหมด', 'Perlu diverifikasi': 'รอตรวจสอบ',
+        'Antrean + proses': 'อยู่ในคิว + กำลังดำเนินการ', 'Antrean': 'อยู่ในคิว', 'Diproses': 'กำลังดำเนินการ',
+        'Diserahkan': 'ส่งมอบแล้ว', 'Belum Bayar': 'ยังไม่ชำระ', 'Cicilan': 'ผ่อนชำระ', 'Lunas': 'ชำระครบแล้ว',
+        'Ringkasan dana dan model jersey': 'สรุปยอดเงินและรุ่นเสื้อทีม',
+        'Total dana diterima': 'ยอดเงินที่ได้รับทั้งหมด', 'Pembayaran terverifikasi': 'การชำระเงินที่ตรวจสอบแล้ว',
+        'Lelaki panjang': 'ผู้ชายแขนยาว', 'Lelaki pendek': 'ผู้ชายแขนสั้น', 'Muslimah': 'มุสลิมะฮ์',
+        'jersey dipesan': 'เสื้อที่สั่ง', 'Petugas': 'เจ้าหน้าที่', 'Produk & stok': 'สินค้าและสต็อก',
+        'Cari pesanan': 'ค้นหาคำสั่งซื้อ', 'Cari nomor, nama, atau HP…': 'ค้นหาเลขที่ ชื่อ หรือเบอร์โทร…',
+        'Status produksi': 'สถานะการผลิต', 'Semua produksi': 'สถานะการผลิตทั้งหมด',
+        'Status pembayaran': 'สถานะการชำระเงิน', 'Semua pembayaran': 'การชำระเงินทั้งหมด',
+        'Terapkan': 'ใช้ตัวกรอง', 'Hapus filter': 'ล้างตัวกรอง', 'Pemesan': 'ผู้สั่งซื้อ', 'Item': 'รายการ',
+        'Tanggal': 'วันที่', 'Aksi': 'การดำเนินการ', 'Simpan': 'บันทึก', 'Detail': 'รายละเอียด', 'Tutup': 'ปิด',
+        'Rincian pesanan': 'รายละเอียดคำสั่งซื้อ', 'Alamat:': 'ที่อยู่:', 'Menunggu': 'รอตรวจสอบ',
+        'Ditolak': 'ปฏิเสธแล้ว', 'Lihat bukti ↗': 'ดูหลักฐาน ↗', 'Catatan': 'หมายเหตุ',
+        'Catatan (opsional)': 'หมายเหตุ (ไม่บังคับ)', 'Tolak': 'ปฏิเสธ', 'Terima': 'ยืนยัน',
+        'Tolak bukti pembayaran ini?': 'ปฏิเสธหลักฐานการชำระเงินนี้หรือไม่?', 'Terima pembayaran ini?': 'ยืนยันการชำระเงินนี้หรือไม่?',
+        'Belum ada pembayaran.': 'ยังไม่มีการชำระเงิน', 'Catatan internal': 'หมายเหตุภายใน',
+        'Contoh: menunggu konfirmasi': 'ตัวอย่าง: รอการยืนยัน', 'Simpan perubahan': 'บันทึกการเปลี่ยนแปลง',
+        'Simpan status': 'บันทึกสถานะ', 'Hapus pesanan': 'ลบคำสั่งซื้อ',
+        'Pesanan tidak ditemukan': 'ไม่พบคำสั่งซื้อ', 'Coba ubah pencarian atau filter.': 'ลองเปลี่ยนคำค้นหาหรือตัวกรอง',
+        'Pendek': 'แขนสั้น', 'Panjang': 'แขนยาว',
+
+        'Tambah petugas': 'เพิ่มเจ้าหน้าที่', 'Maksimal 10 orang. Setiap petugas mendapat link pribadi.': 'สูงสุด 10 คน เจ้าหน้าที่แต่ละคนจะได้รับลิงก์ส่วนตัว',
+        'Nama': 'ชื่อ', 'Nomor HP': 'หมายเลขโทรศัพท์', 'Batas 10 petugas tercapai': 'ครบจำนวนเจ้าหน้าที่ 10 คนแล้ว',
+        'Buat link petugas': 'สร้างลิงก์เจ้าหน้าที่', 'Tanpa nomor HP': 'ไม่มีหมายเลขโทรศัพท์',
+        'Aktif': 'ใช้งาน', 'Nonaktif': 'ปิดใช้งาน', 'Salin': 'คัดลอก', 'Simpan petugas': 'บันทึกเจ้าหน้าที่',
+        'Belum ada petugas.': 'ยังไม่มีเจ้าหน้าที่',
+
+        'Tambah produk': 'เพิ่มสินค้า', 'Buat jenis jersey beserta ukuran awalnya.': 'สร้างประเภทเสื้อทีมพร้อมขนาดเริ่มต้น',
+        'Nama produk': 'ชื่อสินค้า', 'Jersey Dewasa': 'เสื้อทีมผู้ใหญ่', 'Harga dasar (THB)': 'ราคาพื้นฐาน (THB)',
+        'Ukuran awal': 'ขนาดเริ่มต้น', 'Pisahkan dengan koma.': 'คั่นด้วยเครื่องหมายจุลภาค', 'Deskripsi': 'รายละเอียด',
+        'Tampilkan ke pembeli': 'แสดงให้ผู้ซื้อเห็น', 'Simpan produk': 'บันทึกสินค้า',
+        'Ukuran & stok': 'ขนาดและสต็อก', 'Tak terbatas': 'ไม่จำกัด', 'Ukuran baru': 'ขนาดใหม่',
+        'Tambahan harga': 'ราคาเพิ่ม', '+ Ukuran': '+ เพิ่มขนาด'
     };
 
     const patterns = [
         [/^Petugas (.+)$/u, 'เจ้าหน้าที่ $1'], [/^Periode (.+)$/u, 'วาระ $1'],
+        [/^(.+) · Lelaki Pendek · Pendek · (.+)$/u, '$1 · ผู้ชายแขนสั้น · แขนสั้น · $2'],
+        [/^(.+) · Lelaki Panjang · Panjang · (.+)$/u, '$1 · ผู้ชายแขนยาว · แขนยาว · $2'],
+        [/^(.+) · Muslimah · Panjang · (.+)$/u, '$1 · มุสลิมะฮ์ · แขนยาว · $2'],
+        [/^(.+) · Lelaki Pendek · Lengan pendek · Ukuran (.+)$/u, '$1 · ผู้ชายแขนสั้น · แขนสั้น · ขนาด $2'],
+        [/^(.+) · Lelaki Panjang · Lengan panjang · Ukuran (.+)$/u, '$1 · ผู้ชายแขนยาว · แขนยาว · ขนาด $2'],
+        [/^(.+) · Muslimah · Lengan panjang · Ukuran (.+)$/u, '$1 · มุสลิมะฮ์ · แขนยาว · ขนาด $2'],
         [/^(\d+) jersey$/u, '$1 ตัว'], [/^(\d+) buah$/u, '$1 ชิ้น'],
         [/^Ukuran (.+)$/u, 'ขนาด $1'], [/^Sebutkan nomor pesanan (.+) kepada petugas atau admin\.$/u, 'แจ้งเลขที่คำสั่งซื้อ $1 แก่เจ้าหน้าที่หรือผู้ดูแลระบบ'],
         [/^(.+) · Lengan pendek · Ukuran (.+)$/u, '$1 · แขนสั้น · ขนาด $2'],
         [/^(.+) · Lengan panjang · Ukuran (.+)$/u, '$1 · แขนยาว · ขนาด $2'],
         [/^(.+) · Ukuran (.+) · (\d+) buah$/u, '$1 · ขนาด $2 · $3 ชิ้น'],
-        [/^Buka keranjang, (\d+) item$/u, 'เปิดตะกร้า, $1 รายการ']
+        [/^Buka keranjang, (\d+) item$/u, 'เปิดตะกร้า, $1 รายการ'],
+        [/^Petugas \((\d+)\/10\)$/u, 'เจ้าหน้าที่ ($1/10)'],
+        [/^Menampilkan (\d+) pesanan$/u, 'แสดง $1 คำสั่งซื้อ'],
+        [/^(\d+) bukti baru$/u, 'หลักฐานใหม่ $1 รายการ'],
+        [/^Petugas: (.+)$/u, 'เจ้าหน้าที่: $1'],
+        [/^Rincian pesanan \((\d+) jersey\)$/u, 'รายละเอียดคำสั่งซื้อ ($1 ตัว)'],
+        [/^(.+) · (\d+) pesanan$/u, '$1 · $2 คำสั่งซื้อ'],
+        [/^Status produksi (.+)$/u, 'สถานะการผลิต $1'],
+        [/^Hapus pesanan (.+)\? Data akan diarsipkan dan tidak tampil lagi\.$/u, 'ลบคำสั่งซื้อ $1 หรือไม่? ข้อมูลจะถูกเก็บถาวรและไม่แสดงอีก'],
+        [/^(\d{1,2}) (Jan|Feb|Mar|Apr|Mei|Jun|Jul|Agu|Sep|Okt|Nov|Des) (\d{4})(.*)$/u, (all, day, month, year, rest) => `${day} ${{Jan:'ม.ค.',Feb:'ก.พ.',Mar:'มี.ค.',Apr:'เม.ย.',Mei:'พ.ค.',Jun:'มิ.ย.',Jul:'ก.ค.',Agu:'ส.ค.',Sep:'ก.ย.',Okt:'ต.ค.',Nov:'พ.ย.',Des:'ธ.ค.'}[month]} ${Number(year) + 543}${rest}`]
     ];
     const originalText = new WeakMap();
     const originalAttributes = new WeakMap();
@@ -175,4 +227,6 @@
     });
 
     window.isetialTranslate = text => locale === 'th' ? translate(text) : text;
+    const nativeConfirm = window.confirm.bind(window);
+    window.confirm = message => nativeConfirm(window.isetialTranslate(String(message)));
 })();

@@ -13,7 +13,7 @@ class JerseyOrder extends Model
 
     protected function casts(): array
     {
-        return ['birth_date' => 'date', 'total' => 'decimal:2'];
+        return ['birth_date' => 'date', 'total' => 'decimal:2', 'payment_code' => 'integer'];
     }
 
     public function items()
@@ -38,7 +38,12 @@ class JerseyOrder extends Model
 
     public function getBalanceAttribute()
     {
-        return max(0, (float) $this->total - (float) $this->paid_amount);
+        return max(0, $this->payable_total - (float) $this->paid_amount);
+    }
+
+    public function getPayableTotalAttribute(): float
+    {
+        return (float) $this->total + (($this->payment_code ?? 0) / 100);
     }
 
     public function getPaymentStatusAttribute()

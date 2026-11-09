@@ -37,9 +37,9 @@ class JerseyAdminController extends Controller
             ->when(($filters['payment'] ?? null) === 'unpaid', fn ($query) => $query->whereDoesntHave('payments', fn ($payments) => $payments->where('status', 'verified')))
             ->when(($filters['payment'] ?? null) === 'partial', fn ($query) => $query
                 ->whereHas('payments', fn ($payments) => $payments->where('status', 'verified'))
-                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) < jersey_orders.total', ['verified']))
+                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) < (jersey_orders.total + coalesce(jersey_orders.payment_code, 0) / 100)', ['verified']))
             ->when(($filters['payment'] ?? null) === 'paid', fn ($query) => $query
-                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) >= jersey_orders.total', ['verified']))
+                ->whereRaw('(select coalesce(sum(amount), 0) from jersey_payments where jersey_payments.jersey_order_id = jersey_orders.id and status = ?) >= (jersey_orders.total + coalesce(jersey_orders.payment_code, 0) / 100)', ['verified']))
             ->latest();
 
         return view('admin.orders', [
@@ -128,7 +128,7 @@ class JerseyAdminController extends Controller
         $data = $request->validate(['status' => ['required', 'in:verified,rejected'], 'notes' => ['nullable', 'max:1000']]);
         if ($data['status'] === 'verified') {
             $verifiedOther = $payment->order->payments()->where('status', 'verified')->where('id', '!=', $payment->id)->sum('amount');
-            abort_if((float) $verifiedOther + (float) $payment->amount > (float) $payment->order->total, 422, 'Pembayaran terverifikasi akan melebihi total pesanan.');
+            abort_if((float) $verifiedOther + (float) $payment->amount > $payment->order->payable_total, 422, 'Pembayaran terverifikasi akan melebihi total pesanan.');
         }
         $payment->update([...$data, 'verified_by' => $request->user()->id, 'verified_at' => now()]);
 

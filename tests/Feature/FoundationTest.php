@@ -243,6 +243,7 @@ class FoundationTest extends TestCase
         $this->patch(route('jersey.cart.update', $lineIds[0]), ['quantity' => 2])->assertRedirect();
         $this->get(route('jersey.cart'))->assertOk()->assertSee('Hapus')->assertSee('Checkout sekarang')->assertSee('fixed inset-x-0 bottom-0', false)->assertSee('id="checkout-sheet"', false)->assertSee('Data pemesan')->assertDontSee('Perbarui');
         $this->get(route('jersey.checkout'))->assertOk()->assertSee('Data warga')->assertSee('Pembayaran penuh')->assertSee('Detail jersey');
+        session(['jersey_payment_code' => 42]);
         $response = $this->post(route('jersey.store'), [
             'customer_name' => 'Pemesan Jersey', 'address' => 'Alamat',
             'phone' => '08123456789', 'cart_line_ids' => $lineIds,
@@ -260,7 +261,9 @@ class FoundationTest extends TestCase
         $this->assertSame([199.0, 319.0], $order->items->pluck('unit_price')->map(fn ($price) => (float) $price)->all());
         $this->assertSame((float) $order->items->sum('subtotal'), (float) $order->total);
         $this->assertSame($agent->id, $order->jersey_agent_id);
-        $this->assertSame((float) $order->total, (float) $order->payments->first()->amount);
+        $this->assertSame(42, $order->payment_code);
+        $this->assertSame(717.42, $order->payable_total);
+        $this->assertSame($order->payable_total, (float) $order->payments->first()->amount);
         $this->assertSame(2, $product->sizes->first()->fresh()->stock);
         $this->assertSame(1, $plusSize->fresh()->stock);
         $this->get(route('jersey.show', $order->order_number))->assertOk()->assertSee('Pemesan Jersey')->assertSee('Status produksi')->assertSee('Rincian jersey')->assertSee('Progres pembayaran')->assertSee('Masih sisa');

@@ -49,8 +49,11 @@ class JerseyController extends Controller
         if ($items->count() !== count($lineIds)) throw ValidationException::withMessages(['cart_line_ids' => 'Sebagian item keranjang tidak tersedia. Silakan periksa kembali keranjang.']);
         $agent = $this->currentAgent();
         abort_unless($agent, 403, 'Gunakan link petugas yang diberikan admin untuk membuat pesanan.');
+        $paymentCode = $r->session()->pull('jersey_payment_code');
+        if ($paymentCode === null) throw ValidationException::withMessages(['proof' => 'Kode pembayaran kedaluwarsa. Buka kembali halaman checkout dan periksa nominal terbaru.']);
         $proofPath = $r->file('proof')->store('jersey-proofs', 'local');
-        $order = DB::transaction(function () use ($d, $items, $agent, $proofPath) {
+        $paymentCode = (int) $paymentCode;
+        $order = DB::transaction(function () use ($d, $items, $agent, $proofPath, $paymentCode) {
             foreach ($items as $entry) {
                 $size = JerseySize::lockForUpdate()->findOrFail($entry['size']->id);
                 if ($size->stock !== null && $size->stock < $entry['item']['quantity']) {
@@ -62,6 +65,7 @@ class JerseyController extends Controller
                 'jersey_agent_id' => $agent->id,
                 'order_number' => 'TEMP-'.str()->uuid(),
                 'total' => $items->sum(fn ($entry) => $entry['unit'] * $entry['item']['quantity']),
+                'payment_code' => $paymentCode,
             ]);
             $order->update(['order_number' => 'JRS-'.str_pad((string) $order->id, 6, '0', STR_PAD_LEFT)]);
             foreach ($items as $entry) {
@@ -69,7 +73,7 @@ class JerseyController extends Controller
                 JerseyOrderItem::create(['jersey_order_id' => $order->id, 'jersey_product_id' => $entry['product']->id, 'jersey_size_id' => $entry['size']->id, 'model' => $item['model'], 'sleeve' => $item['sleeve'], 'quantity' => $item['quantity'], 'unit_price' => $entry['unit'], 'subtotal' => $entry['unit'] * $item['quantity']]);
                 if ($entry['size']->stock !== null) JerseySize::whereKey($entry['size']->id)->decrement('stock', $item['quantity']);
             }
-            JerseyPayment::create(['jersey_order_id' => $order->id, 'amount' => $order->total, 'proof_path' => $proofPath]);
+            JerseyPayment::create(['jersey_order_id' => $order->id, 'amount' => $order->payable_total, 'proof_path' => $proofPath]);
 
             return $order;
         });
@@ -132,7 +136,14 @@ class JerseyController extends Controller
 
         $agent = $this->currentAgent();
         if (! $agent) return redirect()->route('jersey.create')->withErrors(['agent' => 'Pemesanan hanya dapat dilakukan melalui link petugas resmi.']);
-        return view('jersey.checkout', ['items' => $items, 'agent' => $agent]);
+        $paymentCode = $r->session()->get('jersey_payment_code');
+        if ($paymentCode === null) {
+            $usedCodes = JerseyOrder::whereDate('created_at', today())->whereNotNull('payment_code')->pluck('payment_code')->all();
+            $availableCodes = array_values(array_diff(range(0, 99), $usedCodes));
+            $paymentCode = $availableCodes ? $availableCodes[array_rand($availableCodes)] : random_int(0, 99);
+            $r->session()->put('jersey_payment_code', $paymentCode);
+        }
+        return view('jersey.checkout', ['items' => $items, 'agent' => $agent, 'paymentCode' => $paymentCode]);
     }
 
     public function lookup()

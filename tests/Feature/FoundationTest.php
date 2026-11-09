@@ -396,6 +396,8 @@ class FoundationTest extends TestCase
             ->assertSee('Data Baju untuk Produksi')
             ->assertSee('Total dibuat')
             ->assertSee('data-admin-panel="production-data"', false)
+            ->assertSee('sticky top-[74px]', false)
+            ->assertSee('space-y-3 md:hidden', false)
             ->assertSee('Menampilkan 1 pesanan');
     }
 }

@@ -6,6 +6,7 @@
 
     const patterns = [
         [/^Petugas (.+)$/u, 'เจ้าหน้าที่ $1'], [/^Periode (.+)$/u, 'วาระ $1'],
+        [/^Kelola (.+)$/u, 'จัดการ $1'],
         [/^Pilih (.+)$/u, 'เลือก$1'],
         [/^Lengan pendek · Ukuran (.+)$/u, 'แขนสั้น · ขนาด $1'],
         [/^Lengan panjang · Ukuran (.+)$/u, 'แขนยาว · ขนาด $1'],

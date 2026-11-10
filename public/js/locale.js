@@ -5,6 +5,7 @@
     const dictionary = window.isetialTranslations?.th || {};
 
     const patterns = [
+        [/^Foto (.+)$/u, 'รูปของ $1'],
         [/^Petugas (.+)$/u, 'เจ้าหน้าที่ $1'], [/^Periode (.+)$/u, 'วาระ $1'],
         [/^Kelola (.+)$/u, 'จัดการ $1'],
         [/^Pilih (.+)$/u, 'เลือก$1'],

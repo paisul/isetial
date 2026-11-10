@@ -38,6 +38,7 @@
         'Panduan ukuran': 'คู่มือขนาด', 'dalam inci ↓': 'หน่วยนิ้ว ↓',
         'Stok hampir habis': 'สินค้าใกล้หมด', 'Panjang baju': 'ความยาวเสื้อ',
         'Lebar dada': 'ความกว้างอก', 'Bayar Sekarang': 'ชำระเงินตอนนี้', 'Simpan Keranjang': 'เพิ่มลงตะกร้า',
+        'Lebar dada diukur melintang dari ketiak kiri ke kanan. Bandingkan dengan baju yang nyaman dipakai.': 'วัดความกว้างอกตามแนวขวางจากรักแร้ซ้ายไปขวา แล้วเปรียบเทียบกับเสื้อตัวที่สวมใส่สบาย',
         'Ukuran Lelaki': 'ตารางขนาดผู้ชาย', 'Ukuran Muslimah': 'ตารางขนาดมุสลิมะฮ์',
         'Detail foto jersey': 'รายละเอียดรูปเสื้อทีม', 'Tutup detail foto': 'ปิดรายละเอียดรูป',
         'Arahkan mouse pada foto untuk memperbesar detail': 'เลื่อนเมาส์บนรูปเพื่อขยายรายละเอียด',

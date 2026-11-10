@@ -98,6 +98,16 @@ Aktifkan maintenance mode (`php artisan down --retry=60`) untuk migrasi berisiko
 - Role dapat global atau scoped ke `masjid_id`. Endpoint admin memverifikasi scope di server, bukan hanya menyembunyikan menu.
 - Aktivitas pusat memakai `masjid_id = null`; aktivitas/pengumuman portal selalu difilter `masjid_id` aktif.
 - Saldo Jersey dihitung dari total pembayaran `verified`, tidak disimpan manual.
+
+## Pengembangan antarmuka bilingual
+
+- Semua teks antarmuka ditulis dalam bahasa Indonesia di Blade/JavaScript sebagai bahasa sumber.
+- Tambahkan setiap teks baru sebagai kunci yang sama di `lang/id.json` dan `lang/th.json`; isi `id.json` harus sama dengan kuncinya, sedangkan `th.json` berisi terjemahan Thai.
+- Jangan menambahkan kamus terjemahan langsung ke `public/js/locale.js`. Berkas tersebut hanya mesin penerjemah dan pola untuk teks dinamis.
+- Setelah mengubah kamus, jalankan `npm run build:locales` dan commit `public/js/translations.js` bersama kedua berkas bahasa.
+- Untuk teks dinamis, gunakan kalimat sumber yang stabil dan tambahkan pola terjemahannya di `public/js/locale.js` bila nilai tidak dapat menjadi kunci kamus biasa.
+- Jalankan pengujian sebelum commit. `FoundationTest::test_indonesian_and_thai_ui_dictionaries_stay_in_sync` akan gagal bila salah satu bahasa kehilangan pasangan kunci.
+- Saat kamus atau mesin locale berubah, naikkan versi query `js/locale.js` di `resources/views/layouts/app.blade.php` agar cache browser diperbarui.
 - CSRF, validation, password hashing, upload image/size validation, throttle lookup/order, dan private payment proofs diterapkan.
 
 ### Panel admin MVP

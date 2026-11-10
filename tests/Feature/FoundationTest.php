@@ -30,10 +30,12 @@ class FoundationTest extends TestCase
     public function test_public_site_and_local_masjid_portal_work(): void
     {
         $this->seed();
-        $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan')->assertSee('nav-toggle')->assertSee('toggleMobileNav')->assertSee('data-locale="th"', false)->assertSee('js/locale.js');
+        $this->get('/')->assertOk()->assertSee('Pemuda-Pemudi 5 Masjid')->assertSee('Pesan Jersey')->assertSee('Cek Status Pesanan')->assertSee('nav-toggle')->assertSee('toggleMobileNav')->assertSee('data-locale="th"', false)->assertSee('js/translations.js')->assertSee('js/locale.js');
         $localeScript = file_get_contents(public_path('js/locale.js'));
-        $this->assertStringContainsString('จัดการเสื้อทีม', $localeScript);
-        $this->assertStringContainsString('กรอกข้อมูลผู้สั่งซื้อ ชำระผ่าน PromptPay แล้วอัปโหลดหลักฐาน', $localeScript);
+        $thaiDictionary = json_decode(file_get_contents(lang_path('th.json')), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertStringContainsString('window.isetialTranslations?.th', $localeScript);
+        $this->assertSame('จัดการเสื้อทีม', $thaiDictionary['Kelola Jersey']);
+        $this->assertSame('กรอกข้อมูลผู้สั่งซื้อ ชำระผ่าน PromptPay แล้วอัปโหลดหลักฐาน', $thaiDictionary['Isi data pemesan, bayar melalui PromptPay, lalu unggah bukti.']);
         $this->get('/m/darulhikmah')->assertOk()->assertSee('Darulhikmah');
         $this->get('/tentang')->assertOk()->assertSeeText('Tentang iSetial Wisdom')->assertDontSeeText('Struktur Pengurus');
         $this->get('/masjid')->assertOk()
@@ -42,6 +44,27 @@ class FoundationTest extends TestCase
             ->assertSee('Al-fatonah')
             ->assertSee('Jannatussalam')
             ->assertSee('Darulaman');
+    }
+
+    public function test_indonesian_and_thai_ui_dictionaries_stay_in_sync(): void
+    {
+        $indonesian = json_decode(file_get_contents(lang_path('id.json')), true, flags: JSON_THROW_ON_ERROR);
+        $thai = json_decode(file_get_contents(lang_path('th.json')), true, flags: JSON_THROW_ON_ERROR);
+
+        $this->assertNotEmpty($indonesian);
+        $this->assertSame(array_keys($indonesian), array_keys($thai));
+        $this->assertSame(array_keys($indonesian), array_values($indonesian));
+        $generatedAsset = trim(file_get_contents(public_path('js/translations.js')));
+        $this->assertStringStartsWith('window.isetialTranslations = ', $generatedAsset);
+        $generatedJson = substr($generatedAsset, strlen('window.isetialTranslations = '), -1);
+        $this->assertSame(
+            ['id' => $indonesian, 'th' => $thai],
+            json_decode($generatedJson, true, flags: JSON_THROW_ON_ERROR),
+        );
+
+        foreach ($thai as $source => $translation) {
+            $this->assertNotSame('', trim($translation), "Terjemahan Thai untuk [{$source}] kosong.");
+        }
     }
 
     public function test_masjid_activity_is_isolated_from_other_portal(): void

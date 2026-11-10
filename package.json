@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "build:locales": "node scripts/build-locales.mjs",
         "build": "vite build",
         "dev": "vite"
     },

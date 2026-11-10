@@ -7,6 +7,7 @@
         'Tentang': 'เกี่ยวกับเรา', 'Pengurus': 'คณะกรรมการ', 'Masjid': 'มัสยิด', 'Pedoman': 'แนวทาง',
         'Jersey': 'เสื้อทีม', 'Kontak': 'ติดต่อ', 'Portal Saya': 'พอร์ทัลของฉัน', 'Keluar': 'ออกจากระบบ',
         'Login': 'เข้าสู่ระบบ', 'Buka navigasi': 'เปิดเมนู', 'Tutup navigasi': 'ปิดเมนู', 'Umum': 'ทั่วไป',
+        'Pilih bahasa / เลือกภาษา': 'เลือกภาษา',
         'Petugas Umum': 'เจ้าหน้าที่ทั่วไป', 'Lelaki Pendek': 'ผู้ชายแขนสั้น', 'Lelaki Panjang': 'ผู้ชายแขนยาว',
         'Pemuda-Pemudi 5 Masjid': 'เยาวชนจาก 5 มัสยิด',
         'Bersatu · Bertumbuh · Bermanfaat': 'รวมพลัง · เติบโต · สร้างประโยชน์',
@@ -157,7 +158,7 @@
 
     const patterns = [
         [/^Petugas (.+)$/u, 'เจ้าหน้าที่ $1'], [/^Periode (.+)$/u, 'วาระ $1'],
-        [/^Pilih (.+)$/u, 'เลือก $1'],
+        [/^Pilih (.+)$/u, 'เลือก$1'],
         [/^Lengan pendek · Ukuran (.+)$/u, 'แขนสั้น · ขนาด $1'],
         [/^Lengan panjang · Ukuran (.+)$/u, 'แขนยาว · ขนาด $1'],
         [/^0 tersedia$/u, 'สินค้าหมด'],         [/^(\d+) tersedia$/u, 'มี $1 ชิ้น'], [/^(\d+) tersisa$/u, 'เหลือ $1 ชิ้น'],

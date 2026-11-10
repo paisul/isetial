@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=20260919">
     <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}?v=20260919">
     @vite(['resources/css/app.css','resources/js/app.js'])
-<script defer src="{{ asset('js/translations.js') }}?v=20261110.3"></script>
+<script defer src="{{ asset('js/translations.js') }}?v=20261110.4"></script>
 <script defer src="{{ asset('js/locale.js') }}?v=20261110.6"></script>
     <style>[x-cloak]{display:none}.prose p{margin:.75rem 0}</style>
 </head>

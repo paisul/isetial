@@ -31,8 +31,11 @@ class JerseyController extends Controller
     {
         abort_unless($agent->is_active, 404);
         $request->session()->put('jersey_agent_id', $agent->id);
+        $request->session()->flash('success', "Link petugas {$agent->name} aktif. Pesanan akan tercatat atas nama petugas ini.");
 
-        return redirect()->route('jersey.create')->with('success', "Link petugas {$agent->name} aktif. Pesanan akan tercatat atas nama petugas ini.");
+        return response()
+            ->view('jersey.order', ['products' => JerseyProduct::with('sizes')->where('is_active', true)->get(), 'agent' => $agent])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function promptPayQr(Request $request, PromptPay $promptPay)

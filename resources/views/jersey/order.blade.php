@@ -1,5 +1,10 @@
 @extends('layouts.app')
 @section('title','Pesan Jersey')
+@section('meta_description','Pesan jersey resmi iSetial Wisdom untuk Pemuda-Pemudi 5 Masjid.')
+@section('social_title','Pesan Jersey iSetial Wisdom')
+@section('canonical_url',route('jersey.create'))
+@section('social_image',asset('images/jersey/model-pria-pendek-v2.jpg'))
+@section('social_image_alt','Jersey resmi iSetial Wisdom')
 @section('content')
 @php
 $catalog = $products->map(fn ($product) => [

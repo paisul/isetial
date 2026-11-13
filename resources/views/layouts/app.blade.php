@@ -4,7 +4,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>@yield('title','iSetial Wisdom')</title>
-    <meta name="description" content="Pemuda-Pemudi 5 Masjid">
+    <meta name="description" content="@yield('meta_description','Pemuda-Pemudi 5 Masjid')">
+    @hasSection('social_image')
+        <link rel="canonical" href="@yield('canonical_url', url()->current())">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="iSetial Wisdom">
+        <meta property="og:locale" content="id_ID">
+        <meta property="og:title" content="@yield('social_title', View::yieldContent('title', 'iSetial Wisdom'))">
+        <meta property="og:description" content="@yield('meta_description','Pemuda-Pemudi 5 Masjid')">
+        <meta property="og:url" content="@yield('canonical_url', url()->current())">
+        <meta property="og:image" content="@yield('social_image')">
+        <meta property="og:image:secure_url" content="@yield('social_image')">
+        <meta property="og:image:type" content="@yield('social_image_type', 'image/jpeg')">
+        <meta property="og:image:width" content="@yield('social_image_width', '900')">
+        <meta property="og:image:height" content="@yield('social_image_height', '900')">
+        <meta property="og:image:alt" content="@yield('social_image_alt', 'iSetial Wisdom')">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="@yield('social_title', View::yieldContent('title', 'iSetial Wisdom'))">
+        <meta name="twitter:description" content="@yield('meta_description','Pemuda-Pemudi 5 Masjid')">
+        <meta name="twitter:image" content="@yield('social_image')">
+        <meta name="twitter:image:alt" content="@yield('social_image_alt', 'iSetial Wisdom')">
+    @endif
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=20260919">
     <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}?v=20260919">
     @vite(['resources/css/app.css','resources/js/app.js'])

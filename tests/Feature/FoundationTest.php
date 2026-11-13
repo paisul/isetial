@@ -262,7 +262,17 @@ class FoundationTest extends TestCase
         $plusSize = $muslimahProduct->sizes->firstWhere('name', '5XL');
         $product->sizes->first()->update(['stock' => 4]);
         $plusSize->update(['stock' => 2]);
-        $this->get(route('jersey.create'))->assertOk()->assertSee('Simpan Keranjang')->assertSee('Bayar Sekarang')->assertSee('id="checkout-sheet"', false)->assertSee('Data pemesan')->assertSee('Panduan ukuran')->assertSee('5XL')->assertDontSee('Cek status pesanan sebelumnya');
+        $this->get(route('jersey.create'))->assertOk()
+            ->assertSee('Simpan Keranjang')
+            ->assertSee('Bayar Sekarang')
+            ->assertSee('id="checkout-sheet"', false)
+            ->assertSee('Data pemesan')
+            ->assertSee('Panduan ukuran')
+            ->assertSee('5XL')
+            ->assertSee('<meta property="og:title" content="Pesan Jersey iSetial Wisdom">', false)
+            ->assertSee('<meta property="og:image" content="'.asset('images/jersey/model-pria-pendek-v2.jpg').'">', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertDontSee('Cek status pesanan sebelumnya');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];
         $saved = $this->postJson(route('jersey.cart.add'), [...$selection, 'jersey_size_id' => $product->sizes->first()->id])->assertOk()->assertJson(['cart_count' => 1])->assertJsonStructure(['line_id', 'next_url']);
         $saved->assertJson(['next_url' => route('jersey.checkout', ['lines' => [$saved->json('line_id')]])]);

@@ -257,6 +257,7 @@ class FoundationTest extends TestCase
         $this->seed();
         $product = JerseyProduct::with('sizes')->first();
         $muslimahProduct = JerseyProduct::with('sizes')->where('model', 'Muslimah')->firstOrFail();
+        $product->update(['image_path' => 'jersey/products/social-preview.jpg']);
         $agent = JerseyAgent::create(['name' => 'Petugas Kampung', 'phone' => '0811', 'token' => str_repeat('a', 48)]);
         $this->get(route('jersey.agent.entry', $agent->token))->assertRedirect(route('jersey.create'));
         $plusSize = $muslimahProduct->sizes->firstWhere('name', '5XL');
@@ -270,7 +271,7 @@ class FoundationTest extends TestCase
             ->assertSee('Panduan ukuran')
             ->assertSee('5XL')
             ->assertSee('<meta property="og:title" content="Pesan Jersey iSetial Wisdom">', false)
-            ->assertSee('<meta property="og:image" content="'.asset('images/jersey/model-pria-pendek-v2.jpg').'">', false)
+            ->assertSee('<meta property="og:image" content="'.asset('storage/jersey/products/social-preview.jpg').'">', false)
             ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
             ->assertDontSee('Cek status pesanan sebelumnya');
         $selection = ['jersey_product_id' => $product->id, 'model' => 'Lelaki Pendek', 'sleeve' => 'short', 'quantity' => 1, 'intent' => 'save_cart'];

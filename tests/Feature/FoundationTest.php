@@ -259,12 +259,16 @@ class FoundationTest extends TestCase
         $muslimahProduct = JerseyProduct::with('sizes')->where('model', 'Muslimah')->firstOrFail();
         $product->update(['image_path' => 'jersey/products/social-preview.jpg']);
         $agent = JerseyAgent::create(['name' => 'Petugas Kampung', 'phone' => '0811', 'token' => str_repeat('a', 48)]);
-        $this->get(route('jersey.agent.entry', $agent->token))
+        $agentEntryUrl = route('jersey.agent.entry', $agent->token);
+        $this->assertStringEndsWith('/pesan', $agentEntryUrl);
+        $this->get($agentEntryUrl)
             ->assertOk()
             ->assertSee('<meta property="og:title" content="Pesan Jersey iSetial Wisdom">', false)
             ->assertSee('<meta property="og:image" content="'.asset('storage/jersey/products/social-preview.jpg').'">', false)
+            ->assertSee('<meta property="og:url" content="'.$agentEntryUrl.'">', false)
             ->assertSeeText('Link petugas Petugas Kampung aktif');
         $this->assertSame($agent->id, session('jersey_agent_id'));
+        $this->get(route('jersey.agent.entry.legacy', $agent->token))->assertOk();
         $plusSize = $muslimahProduct->sizes->firstWhere('name', '5XL');
         $product->sizes->first()->update(['stock' => 4]);
         $plusSize->update(['stock' => 2]);
